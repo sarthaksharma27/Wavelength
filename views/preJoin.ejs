@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Chat Pre-Join</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            position: relative;
+            width: 100%;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .logo-text {
+            margin-left: 8px;
+        }
+        
+        .help-button {
+            position: absolute;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #333;
+            color: white;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 30px;
+        }
+
+        .left-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+        }
+        
+        .info-text {
+            color: #aaa;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .main-heading {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .host-info {
+            background-color: #222;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 450px;
+            margin-bottom: 20px;
+        }
+        
+        .host-name {
+            font-weight: 500;
+        }
+        
+        .host-label {
+            background-color: #333;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .headphone-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .headphone-button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .headphone-button.not-using {
+            background-color: #8a70f0;
+            color: white;
+        }
+        
+        .headphone-button.using {
+            background-color: #333;
+            color: white;
+        }
+        
+        .allow-access-button, .join-button {
+            width: 100%;
+            max-width: 450px;
+            padding: 14px;
+            border-radius: 25px;
+            border: none;
+            background-color: #8a70f0;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .button-disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .join-options {
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        .join-producer {
+            color: white;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .preview-container {
+            width: 360px;
+            height: 360px;
+            background-color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            background-color: #333;
+            color: #aaa;
+        }
+
+        .no-video-placeholder svg {
+            margin-bottom: 10px;
+        }
+        
+        .video-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .quality-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .effects-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .effects-button svg {
+            margin-right: 5px;
+        }
+        
+        .media-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .media-control-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .device-selector {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            width: 100%;
+            padding: 0 10px;
+        }
+        
+        .device-row {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .device-icon {
+            margin-right: 10px;
+        }
+        
+        .device-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+        }
+        
+        .dropdown-icon {
+            margin-left: 10px;
+            transition: transform 0.2s;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .content-container {
+                flex-direction: column-reverse;
+            }
+
+            .preview-container {
+                width: 100%;
+                max-width: 450px;
+                height: 250px;
+                margin-bottom: 20px;
+            }
+
+            .left-content {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            <span class="logo-text">RIVERSIDE | Sarthak Sharma's Studio</span>
+        </div>
+        <button class="help-button">?</button>
+    </div>
+    
+    <div class="main-content">
+        <div class="content-container">
+            <div class="left-content">
+                <p class="info-text">You're about to join Sarthak Sharma's Studio</p>
+                <h1 class="main-heading">Let's check your cam and mic</h1>
+                
+                <div class="host-info">
+                    <span class="host-name">Sarthak Sharma</span>
+                    <span class="host-label">Host</span>
+                </div>
+                
+                <div class="headphone-options">
+                    <button class="headphone-button not-using" id="no-headphones">I am not using headphones</button>
+                    <button class="headphone-button using" id="using-headphones">I am using headphones</button>
+                </div>
+                
+                <button class="allow-access-button" id="allow-access-btn">Allow Camera & Mic Access</button>
+                <button class="join-button hidden" id="join-studio-btn">Join Studio</button>
+                
+                <p class="join-options">
+                    You are joining as a host. <span class="join-producer">Join as a producer</span>
+                </p>
+            </div>
+            
+            <div class="preview-container">
+                <div class="no-video-placeholder" id="no-video-placeholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 7l-7 5 7 5V7z"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                    </svg>
+                    <p>Camera access needed</p>
+                </div>
+                <video class="video-preview hidden" id="video-preview" autoplay muted></video>
+                <div class="quality-badge hidden" id="quality-badge">720p / 30fps</div>
+                <button class="effects-button hidden" id="effects-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v18M3 12h18M5.63 5.63L12 12M5.63 18.36L12 12M18.36 5.64L12 12M18.36 18.36L12 12"/>
+                    </svg>
+                    Effects
+                </button>
+                
+                <div class="media-controls hidden" id="media-controls">
+                    <button class="media-control-button" id="mic-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="22"/>
+                        </svg>
+                    </button>
+                    <button class="media-control-button" id="camera-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 7l-7 5 7 5V7z"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="device-selector hidden" id="device-selector">
+                    <div class="device-row">
+                        <svg class="device-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 7l-7 5 7 5V7z"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        </svg>
+                        <span class="device-name">HP TrueVision HD Camera (30c9:00f4)</span>
+                        <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </div>
+                    <div class="device-row">
+                        <svg class="device-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="22"/>
+                        </svg>
+                        <span class="device-name">Communications - Microphone Array (Intl)</span>
+                        <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </div>
+                    <div class="device-row">
+                        <svg class="device-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                            <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+                        </svg>
+                        <span class="device-name">Default - Speaker (Realtek(R) Audio)</span>
+                        <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const videoPreview = document.getElementById('video-preview');
+        const noVideoPlaceholder = document.getElementById('no-video-placeholder');
+        const qualityBadge = document.getElementById('quality-badge');
+        const effectsButton = document.getElementById('effects-button');
+        const mediaControls = document.getElementById('media-controls');
+        const deviceSelector = document.getElementById('device-selector');
+        const noHeadphonesBtn = document.getElementById('no-headphones');
+        const usingHeadphonesBtn = document.getElementById('using-headphones');
+        const micToggleBtn = document.getElementById('mic-toggle');
+        const cameraToggleBtn = document.getElementById('camera-toggle');
+        const allowAccessBtn = document.getElementById('allow-access-btn');
+        const joinStudioBtn = document.getElementById('join-studio-btn');
+        
+        // State
+        let stream = null;
+        let micEnabled = true;
+        let cameraEnabled = true;
+        let mediaAccessGranted = false;
+        
+        // Request camera and microphone access
+        async function requestMediaAccess() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+                
+                // Update UI to show media is available
+                videoPreview.srcObject = stream;
+                mediaAccessGranted = true;
+                
+                // Show video preview and controls
+                noVideoPlaceholder.classList.add('hidden');
+                videoPreview.classList.remove('hidden');
+                qualityBadge.classList.remove('hidden');
+                effectsButton.classList.remove('hidden');
+                mediaControls.classList.remove('hidden');
+                deviceSelector.classList.remove('hidden');
+                
+                // Hide allow access button and show join studio button
+                allowAccessBtn.classList.add('hidden');
+                joinStudioBtn.classList.remove('hidden');
+                
+                return true;
+            } catch (error) {
+                console.error('Error accessing media devices:', error);
+                alert('Failed to access camera and microphone. Please check your permissions.');
+                return false;
+            }
+        }
+        
+        // Toggle microphone
+        function toggleMic() {
+            if (stream) {
+                const audioTracks = stream.getAudioTracks();
+                if (audioTracks.length > 0) {
+                    micEnabled = !micEnabled;
+                    audioTracks[0].enabled = micEnabled;
+                    
+                    // Update UI
+                    if (micEnabled) {
+                        micToggleBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    } else {
+                        micToggleBtn.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
+                    }
+                }
+            }
+        }
+        
+        // Toggle camera
+        function toggleCamera() {
+            if (stream) {
+                const videoTracks = stream.getVideoTracks();
+                if (videoTracks.length > 0) {
+                    cameraEnabled = !cameraEnabled;
+                    videoTracks[0].enabled = cameraEnabled;
+                    
+                    // Update UI
+                    if (cameraEnabled) {
+                        cameraToggleBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    } else {
+                        cameraToggleBtn.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
+                    }
+                }
+            }
+        }
+        
+        // Headphone options
+        function toggleHeadphoneOptions(usingHeadphones) {
+            if (usingHeadphones) {
+                usingHeadphonesBtn.classList.add('not-using');
+                usingHeadphonesBtn.classList.remove('using');
+                noHeadphonesBtn.classList.add('using');
+                noHeadphonesBtn.classList.remove('not-using');
+            } else {
+                noHeadphonesBtn.classList.add('not-using');
+                noHeadphonesBtn.classList.remove('using');
+                usingHeadphonesBtn.classList.add('using');
+                usingHeadphonesBtn.classList.remove('not-using');
+            }
+        }
+        
+        // Join studio
+        function joinStudio() {
+            if (mediaAccessGranted) {
+                alert('Joining studio...');
+                // Here you would implement the logic to join the actual video chat
+            } else {
+                alert('Please allow camera and microphone access first');
+            }
+        }
+        
+        // Event listeners
+        allowAccessBtn.addEventListener('click', requestMediaAccess);
+        micToggleBtn.addEventListener('click', toggleMic);
+        cameraToggleBtn.addEventListener('click', toggleCamera);
+        noHeadphonesBtn.addEventListener('click', () => toggleHeadphoneOptions(true));
+        usingHeadphonesBtn.addEventListener('click', () => toggleHeadphoneOptions(false));
+        joinStudioBtn.addEventListener('click', joinStudio);
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "riverside-webrtc",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/sarthaksharma27/Riverside-webrtc#readme",
+  "bugs": {
+    "url": "https://github.com/sarthaksharma27/Riverside-webrtc/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sarthaksharma27/Riverside-webrtc.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
+  }
+}

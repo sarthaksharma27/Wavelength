@@ -1,0 +1,271 @@
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            position: relative;
+            width: 100%;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .logo-text {
+            margin-left: 8px;
+        }
+        
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 30px;
+        }
+
+        .left-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+        }
+        
+        .info-text {
+            color: #aaa;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .main-heading {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .host-info {
+            background-color: #222;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 450px;
+            margin-bottom: 20px;
+        }
+        
+        .host-name {
+            font-weight: 500;
+        }
+        
+        .host-label {
+            background-color: #333;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        /* .headphone-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .headphone-button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .headphone-button.not-using {
+            background-color: #8a70f0;
+            color: white;
+        }
+        
+        .headphone-button.using {
+            background-color: #333;
+            color: white;
+        } */
+        
+        .allow-access-button, .join-button {
+            width: 100%;
+            max-width: 450px;
+            padding: 14px;
+            border-radius: 25px;
+            border: none;
+            background-color: #8a70f0;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .button-disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .join-options {
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        .join-producer {
+            color: white;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .preview-container {
+            width: 360px;
+            height: 360px;
+            background-color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            background-color: #333;
+            color: #aaa;
+        }
+
+        .no-video-placeholder svg {
+            margin-bottom: 10px;
+        }
+        
+        .video-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .quality-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .effects-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .effects-button svg {
+            margin-right: 5px;
+        }
+        
+        .media-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .media-control-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .content-container {
+                flex-direction: column-reverse;
+            }
+
+            .preview-container {
+                width: 100%;
+                max-width: 450px;
+                height: 250px;
+                margin-bottom: 20px;
+            }
+
+            .left-content {
+                max-width: 100%;
+            }
+        }

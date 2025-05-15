@@ -14,8 +14,23 @@ let cameraEnabled = true;
 
 async function requestMediaAccess() {
     try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const constraints = {
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 30 }
+            },
+            audio: true
+        };
+
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoPreview.srcObject = stream;
+
+        // Show actual video settings in qualityBadge
+        const videoTrack = stream.getVideoTracks()[0];
+        const settings = videoTrack.getSettings();
+        qualityBadge.textContent = `${settings.width || 1280}p / ${settings.frameRate || 30}fps`;
+
         noVideoPlaceholder.classList.add('hidden');
         videoPreview.classList.remove('hidden');
         qualityBadge.classList.remove('hidden');

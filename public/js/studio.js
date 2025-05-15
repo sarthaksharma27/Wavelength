@@ -1,4 +1,5 @@
 const localVideo = document.getElementById('local-video');
+const inviteBtn = document.getElementById('invite-btn');
 
 const micBtn = document.querySelector('.control-button:nth-child(2)');
 const camBtn = document.querySelector('.control-button:nth-child(3)');
@@ -47,6 +48,15 @@ function leaveCall() {
   alert('You have left the studio.');
 
 }
+
+inviteBtn.addEventListener('click', () => {
+  const inviteLink = `${window.location.origin}/studio/${roomId}`;
+  navigator.clipboard.writeText(inviteLink).then(() => {
+    alert(`Invite link copied to clipboard:\n${inviteLink}`);
+  }).catch(err => {
+    console.error('Failed to copy invite link:', err);
+  });
+});
 
 micBtn.addEventListener('click', toggleMic);
 camBtn.addEventListener('click', toggleCam);

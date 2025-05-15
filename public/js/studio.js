@@ -46,11 +46,10 @@ function leaveCall() {
   localStream = null;
 
   alert('You have left the studio.');
-
 }
 
 inviteBtn.addEventListener('click', () => {
-  const inviteLink = `${window.location.origin}/studio/${roomId}`;
+  const inviteLink = `${window.location.origin}/studio/${window.roomId}`;
   navigator.clipboard.writeText(inviteLink).then(() => {
     alert(`Invite link copied to clipboard:\n${inviteLink}`);
   }).catch(err => {
@@ -64,4 +63,22 @@ leaveBtn.addEventListener('click', leaveCall);
 
 window.addEventListener('load', () => {
   startLocalStream();
+
+  // Socket.IO client code - make sure /socket.io/socket.io.js is loaded in your HTML before this script
+  const socket = io();
+  const roomId = window.roomId;
+
+  if (!roomId) {
+    console.error('No roomId defined on window!');
+    return;
+  }
+
+  console.log('Connecting to room:', roomId);
+  socket.emit('join-room', roomId);
+
+  socket.on('user-joined', userId => {
+    console.log('Another user joined the room:', userId);
+  });
+
+  // Add other Socket.IO signaling handlers here later
 });

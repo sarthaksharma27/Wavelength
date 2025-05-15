@@ -1,8 +1,11 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const PORT = 4000;
 const { v4: uuidv4 } = require('uuid');
+const http = require('http');
+const socketIo = require('socket.io');
+const server = http.createServer(app);
+const io = socketIo(server);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -26,7 +29,21 @@ app.get('/studio', (req, res) => {
   res.redirect(`/studio/${roomId}`);
 });
 
+io.on('connection', socket => {
+  console.log(`Client connected: ${socket.id}`);
 
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+  socket.on('join-room', roomId => {
+    socket.join(roomId);
+    console.log(`Socket ${socket.id} joined room ${roomId}`);
+
+    socket.to(roomId).emit('user-joined', socket.id);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
 });
+
+
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

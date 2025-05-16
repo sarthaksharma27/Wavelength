@@ -36,22 +36,22 @@ async function startLocalStream() {
 function createPeerConnection() {
   peerConnection = new RTCPeerConnection(config);
 
-  // peerConnection.ontrack = (event) => {
-  //   console.log('🎥 Remote track received:', event.streams[0]);
-  //   const remoteVideo = document.getElementById('remote-video');
-  //   if (remoteVideo) {
-  //     remoteVideo.srcObject = event.streams[0];
-  //   } else {
-  //     console.warn('remote-video element not found!');
-  //   }
-  // };
+  peerConnection.ontrack = (event) => {
+    console.log('🎥 Remote track received:', event.streams[0]);
+    const remoteVideo = document.getElementById('remote-video');
+    if (remoteVideo) {
+      remoteVideo.srcObject = event.streams[0];
+    } else {
+      console.warn('remote-video element not found!');
+    }
+  };
 
-  // peerConnection.onicecandidate = (event) => {
-  //   if (event.candidate) {
-  //     console.log('📤 Sending ICE candidate:', event.candidate);
-  //     socket.emit('ice-candidate', { roomId, candidate: event.candidate });
-  //   }
-  // };
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      console.log('📤 Sending ICE candidate:', event.candidate);
+      socket.emit('ice-candidate', { roomId, candidate: event.candidate });
+    }
+  };
 
   localStream.getTracks().forEach(track => {
     peerConnection.addTrack(track, localStream);
@@ -87,15 +87,15 @@ socket.on('answer', async ({ answer }) => {
   await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 
-// socket.on('ice-candidate', async ({ candidate }) => {
-//   if (!peerConnection) return;
-//   try {
-//     console.log('📥 Received ICE candidate:', candidate);
-//     await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-//   } catch (err) {
-//     console.error('❌ Error adding received ICE candidate:', err);
-//   }
-// });
+socket.on('ice-candidate', async ({ candidate }) => {
+  if (!peerConnection) return;
+  try {
+    console.log('📥 Received ICE candidate:', candidate);
+    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+  } catch (err) {
+    console.error('❌ Error adding received ICE candidate:', err);
+  }
+});
 
 function startCall() {
   createPeerConnection();

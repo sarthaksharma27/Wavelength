@@ -64,7 +64,6 @@ leaveBtn.addEventListener('click', leaveCall);
 window.addEventListener('load', () => {
   startLocalStream();
 
-  // Socket.IO client code - make sure /socket.io/socket.io.js is loaded in your HTML before this script
   const socket = io();
   const roomId = window.roomId;
 
@@ -79,6 +78,4 @@ window.addEventListener('load', () => {
   socket.on('user-joined', userId => {
     console.log('Another user joined the room:', userId);
   });
-
-  // Add other Socket.IO signaling handlers here later
 });

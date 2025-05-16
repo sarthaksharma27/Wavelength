@@ -13,11 +13,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-  res.render("index")
+  res.render("index");
 });
 
 app.get('/pre', (req, res) => {
-  res.render("preJoin")
+  res.render("preJoin");
 });
 
 app.get('/studio/:roomId', (req, res) => {
@@ -34,16 +34,41 @@ io.on('connection', socket => {
 
   socket.on('join-room', roomId => {
     socket.join(roomId);
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
+    const clientsInRoom = io.sockets.adapter.rooms.get(roomId);
+    const numClients = clientsInRoom ? clientsInRoom.size : 0;
 
-    socket.to(roomId).emit('user-joined', socket.id);
+    console.log(`Socket ${socket.id} joined room ${roomId}. Clients in room: ${numClients}`);
+
+    if (numClients === 1) {
+      socket.emit('room-created');
+    } else if (numClients === 2) {
+      socket.emit('room-joined');
+      socket.to(roomId).emit('user-joined', socket.id);
+    } else {
+      console.log(`Room ${roomId} has ${numClients} clients, which may exceed your max limit.`);
+    }
+  });
+
+  socket.on('ready', roomId => {
+    socket.to(roomId).emit('ready');
+  });
+
+  socket.on('offer', ({ roomId, offer }) => {
+    socket.to(roomId).emit('offer', { offer, roomId }); // Sent to everyone *except* sender
+  });
+
+  socket.on('answer', ({ roomId, answer }) => {
+    socket.to(roomId).emit('answer', { answer, roomId }); // Sent to everyone *except* sender
+  });
+
+  socket.on('ice-candidate', ({ roomId, candidate }) => {
+    socket.to(roomId).emit('ice-candidate', { candidate });
   });
 
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
   });
 });
-
 
 const PORT = 4000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

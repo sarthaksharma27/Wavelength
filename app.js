@@ -6,33 +6,34 @@ const http = require('http');
 const socketIo = require('socket.io');
 const server = http.createServer(app);
 const io = socketIo(server);
+const cookieParser = require('cookie-parser');
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.get('/', (req, res) => {
-  res.render("index");
-});
+const staticRouter = require('./routes/staticRouter.js');
+const userRouter = require('./routes/userRouter.js');
+const restrictToLoggedinUserOnly = require('./middleware/user.js');
+const dasRouter = require('./routes/dasRouter.js');
 
-app.get('/pre', (req, res) => {
+app.use('/', staticRouter);
+app.use('/user', userRouter);
+app.use('/dashboard', restrictToLoggedinUserOnly, dasRouter);
+
+
+app.get('/pre', restrictToLoggedinUserOnly, (req, res) => {
   res.render("preJoin");
 });
 
-app.get('/login', (req, res) => {
-  res.render("login");
-});
-
-app.get('/signup', (req, res) => {
-  res.render("signup");
-});
-
-app.get('/studio/:roomId', (req, res) => {
+app.get('/studio/:roomId', restrictToLoggedinUserOnly, (req, res) => {
   res.render('studio', { roomId: req.params.roomId });
 });
 
-app.get('/studio', (req, res) => {
+app.get('/studio', restrictToLoggedinUserOnly, (req, res) => {
   const roomId = uuidv4();
   res.redirect(`/studio/${roomId}`);
 });

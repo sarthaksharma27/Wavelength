@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wavelength - Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4V20M7 6v12M17 8v8M3 10v4M21 10v4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            Wavelength
+        </a>
+        <div class="navbar-right">
+            <div class="user-profile" id="profile-btn">
+                <div class="avatar">U</div>
+                <span class="username">Username</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="dropdown-menu" id="dropdown-menu">
+        <div class="dropdown-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Settings
+        </div>
+        <div class="dropdown-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Privacy
+        </div>
+        <div class="dropdown-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Notifications
+        </div>
+        <div class="dropdown-item logout">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Log Out
+        </div>
+    </div>
+    
+    <main class="main-content">
+        <section class="welcome-section">
+            <h1 class="welcome-title">Welcome back, Username!</h1>
+            <p class="welcome-subtitle">Ready to create your next podcast episode?</p>
+        </section>
+        
+        <section class="actions">
+            <div class="action-btn">
+                <div class="action-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2v20M22 12H2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3 class="action-title">Create Podcast</h3>
+                <p class="action-desc">Record a new podcast episode with guests</p>
+            </div>
+            
+            <div class="action-btn">
+                <div class="action-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="4" fill="white"/>
+                    </svg>
+                </div>
+                <h3 class="action-title">Go Live</h3>
+                <p class="action-desc">Stream and interact with your audience in real-time</p>
+            </div>
+        </section>
+        
+        <section class="recent-section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Recordings</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            
+            <div class="recordings-grid" id="recordings-container">
+                <!-- Sample recordings -->
+                <div class="recording-card">
+                    <div class="recording-thumbnail">
+                        <div class="play-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 3l14 9-14 9V3z" fill="white"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="recording-info">
+                        <h3 class="recording-title">Interview with John Smith</h3>
+                        <div class="recording-meta">
+                            <span>32:15</span>
+                            <span>May 12, 2025</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recording-card">
+                    <div class="recording-thumbnail">
+                        <div class="play-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 3l14 9-14 9V3z" fill="white"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="recording-info">
+                        <h3 class="recording-title">Tech News Weekly Update</h3>
+                        <div class="recording-meta">
+                            <span>45:22</span>
+                            <span>May 10, 2025</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recording-card">
+                    <div class="recording-thumbnail">
+                        <div class="play-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 3l14 9-14 9V3z" fill="white"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="recording-info">
+                        <h3 class="recording-title">Mindfulness Session</h3>
+                        <div class="recording-meta">
+                            <span>28:45</span>
+                            <span>May 8, 2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty state (initially hidden) -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke="#9066cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke="#9066cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3 class="empty-title">No recordings yet</h3>
+                <p class="empty-desc">Start creating your first podcast episode or go live</p>
+                <button class="empty-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2v20M22 12H2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Create New Podcast
+                </button>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        // Toggle dropdown menu
+        const profileBtn = document.getElementById('profile-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        
+        profileBtn.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!profileBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+        
+        // Toggle empty state for demo purpose
+        const recordingsContainer = document.getElementById('recordings-container');
+        const emptyState = document.getElementById('empty-state');
+        
+        function toggleEmptyState() {
+            if (recordingsContainer.style.display !== 'none') {
+                recordingsContainer.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                recordingsContainer.style.display = 'grid';
+                emptyState.style.display = 'none';
+            }
+        }
+        
+        // Uncomment this line to show empty state by default
+        // toggleEmptyState();
+        
+        // Sample functionality for action buttons
+        const actionButtons = document.querySelectorAll('.action-btn');
+        actionButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // This would typically navigate to a new page or open a modal
+                // For demo purposes, we'll just log the action
+                const title = btn.querySelector('.action-title').textContent;
+                console.log(`Clicked on: ${title}`);
+                
+                // If we were to implement actual functionality:
+                // if (title === 'Create Podcast') {
+                //     window.location.href = '/create-podcast';
+                // } else if (title === 'Go Live') {
+                //     window.location.href = '/go-live';
+                // }
+            });
+        });
+        
+        // Sample functionality for recordings
+        const recordingCards = document.querySelectorAll('.recording-card');
+        recordingCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.querySelector('.recording-title').textContent;
+                console.log(`Playing: ${title}`);
+                // This would typically open the recording player
+                // window.location.href = `/play/${encodeURIComponent(title)}`;
+            });
+        });
+    </script>
+</body>
+</html>

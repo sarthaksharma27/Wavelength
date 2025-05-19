@@ -17,14 +17,17 @@
             Wavelength
         </a>
         <div class="navbar-right">
-            <div class="user-profile" id="profile-btn">
-                <div class="avatar">U</div>
-                <span class="username">Username</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
+           <div class="user-profile" id="profile-btn">
+        <div class="avatar">
+            <%= user.username.charAt(0).toUpperCase() %> 
         </div>
+        <span class="username"><%= user.username %></span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
     </nav>
     
     <div class="dropdown-menu" id="dropdown-menu">
@@ -58,10 +61,10 @@
     
     <main class="main-content">
         <section class="welcome-section">
-            <h1 class="welcome-title">Welcome back, Username!</h1>
+            <h1 class="welcome-title">Welcome back, <%= user.username %>!</h1>
             <p class="welcome-subtitle">Ready to create your next podcast episode?</p>
         </section>
-        
+
         <section class="actions">
             <a href="/pre">
                 <div class="action-btn">

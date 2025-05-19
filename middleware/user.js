@@ -1,18 +1,30 @@
 const jwt = require('jsonwebtoken');
+const prisma = require('../prisma/client');
 
-function restrictToLoggedinUserOnly(req, res, next) {
+async function restrictToLoggedinUserOnly(req, res, next) {
   const token = req.cookies.uid;
-
-  // if (!token) return res.status(401).json({ error: 'Access denied' });
-  if (!token) return res.status(401).render("unauthorized");
+  const guestToken = req.query.guestToken;
+  const roomId = req.params.roomId;
 
   try {
-    const verified = jwt.verify(token, 'Sarthak$123@$');
-    req.user = verified;
-    next();
-  } catch (error) {
-    // res.status(401).json({ error: 'Invalid token' });
-    res.render("session")
+    if (token) {
+      const verified = jwt.verify(token, 'Sarthak$123@$');
+      req.user = verified;
+      return next();
+    }
+
+    if (guestToken && roomId) {
+      const guest = await prisma.guestToken.findUnique({ where: { token: guestToken } });
+
+      if (guest && guest.roomId === roomId && new Date(guest.expiresAt) > new Date()) {
+        req.guest = { token: guestToken };
+        return next();
+      }
+    }
+
+    return res.status(401).render("unauthorized");
+  } catch (err) {
+    return res.render("session");
   }
 }
 

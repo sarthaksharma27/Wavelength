@@ -20,8 +20,12 @@
                 <line x1="12" y1="17" x2="12" y2="21"/>
             </svg>
         </div>
-        <div class="room-name"> <%= user.username %> Studio <span class="recording-title">Untitled Recording</span></div>
-        
+        <% const safeUser = typeof user !== 'undefined' && user ? user : {}; %>
+        <div class="room-name">
+           <%= safeUser.username || 'Guest' %> Studio
+        <span class="recording-title">Untitled Recording</span>
+        </div>
+
         <button class="stream-button">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
@@ -44,7 +48,9 @@
     <div class="main-content">
         <div class="video-container video-border-purple">
             <video class="video-feed" id="local-video" autoplay muted></video>
-            <div class="participant-name"><%= user.username %></div>
+            <div class="participant-name">
+               <%= safeUser.username || 'Guest' %>
+            </div>
             <div class="audio-indicator">
             </div>
         </div>

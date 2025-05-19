@@ -158,12 +158,27 @@ function leaveCall() {
 
 // ==== Invite Button ====
 
-inviteBtn.addEventListener('click', () => {
-  const inviteLink = `${window.location.origin}/studio/${roomId}`;
-  navigator.clipboard.writeText(inviteLink)
-    .then(() => alert(`Invite link copied to clipboard:\n${inviteLink}`))
-    .catch(err => console.error('Failed to copy invite link:', err));
+inviteBtn.addEventListener('click', async () => {
+  try {
+    const res = await fetch('/generatetoken', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roomId })
+    });
+
+    if (!res.ok) throw new Error("Failed to generate invite token");
+
+    const data = await res.json();
+    const inviteLink = `${window.location.origin}/studio/${roomId}?guestToken=${data.token}`;
+
+    await navigator.clipboard.writeText(inviteLink);
+    alert(`Invite link copied to clipboard:\n${inviteLink}`);
+  } catch (err) {
+    console.error('Failed to copy invite link:', err);
+    alert("Something went wrong while generating invite link.");
+  }
 });
+
 
 // ==== Init on Load ====
 

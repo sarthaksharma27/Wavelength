@@ -14,3 +14,10 @@ model User {
   password  String
   createdAt DateTime @default(now())
 }
+
+model GuestToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  roomId    String
+  expiresAt DateTime
+}

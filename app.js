@@ -25,7 +25,7 @@ const studioRouter = require('./routes/studioRouter.js');
 app.use('/', staticRouter);
 app.use('/user', userRouter);
 app.use('/dashboard', restrictToLoggedinUserOnly, dasRouter);
-app.use('/studio', restrictToLoggedinUserOnly, studioRouter)
+app.use('/studio', studioRouter)
 
 
 app.get('/pre', restrictToLoggedinUserOnly, async (req, res) => {
@@ -35,6 +35,22 @@ app.get('/pre', restrictToLoggedinUserOnly, async (req, res) => {
         where: { id: userId },
     });
   res.render("preJoin", {user});
+});
+
+app.post('/generatetoken', async (req, res) => {
+  const { roomId } = req.body;
+
+  const token = uuidv4();
+
+  await prisma.guestToken.create({
+    data: {
+      token,
+      roomId,
+      expiresAt: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 hours
+    },
+  });
+
+  res.json({ token });
 });
 
 app.use((req, res) => {

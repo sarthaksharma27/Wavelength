@@ -7,6 +7,7 @@ const socketIo = require('socket.io');
 const server = http.createServer(app);
 const io = socketIo(server);
 const cookieParser = require('cookie-parser');
+const prisma = require("./prisma/client.js");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,23 +20,21 @@ const staticRouter = require('./routes/staticRouter.js');
 const userRouter = require('./routes/userRouter.js');
 const restrictToLoggedinUserOnly = require('./middleware/user.js');
 const dasRouter = require('./routes/dasRouter.js');
+const studioRouter = require('./routes/studioRouter.js');
 
 app.use('/', staticRouter);
 app.use('/user', userRouter);
 app.use('/dashboard', restrictToLoggedinUserOnly, dasRouter);
+app.use('/studio', restrictToLoggedinUserOnly, studioRouter)
 
 
-app.get('/pre', restrictToLoggedinUserOnly, (req, res) => {
-  res.render("preJoin");
-});
+app.get('/pre', restrictToLoggedinUserOnly, async (req, res) => {
+  const userId = req.user.id;
 
-app.get('/studio/:roomId', restrictToLoggedinUserOnly, (req, res) => {
-  res.render('studio', { roomId: req.params.roomId });
-});
-
-app.get('/studio', restrictToLoggedinUserOnly, (req, res) => {
-  const roomId = uuidv4();
-  res.redirect(`/studio/${roomId}`);
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+    });
+  res.render("preJoin", {user});
 });
 
 app.use((req, res) => {

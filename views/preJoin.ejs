@@ -19,18 +19,18 @@
                 <line x1="8" y1="21" x2="16" y2="21"/>
                 <line x1="12" y1="17" x2="12" y2="21"/>
             </svg>
-            <span class="logo-text">RIVERSIDE | Sarthak Sharma's Studio</span>
+            <span class="logo-text">RIVERSIDE | <%= user.username %> Studio</span>
         </div>
     </div>
     
     <div class="main-content">
         <div class="content-container">
             <div class="left-content">
-                <p class="info-text">You're about to join Sarthak Sharma's Studio</p>
+                <p class="info-text">You're about to join  <%= user.username %> Studio</p>
                 <h1 class="main-heading">Let's check your cam and mic</h1>
                 
                 <div class="host-info">
-                    <span class="host-name">Sarthak Sharma</span>
+                    <span class="host-name"> <%= user.username %></span>
                     <span class="host-label">Host</span>
                 </div>
                 

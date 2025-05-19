@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wavelength - Page Not Found</title>
+    <style>
+        /* Common Styles */
+        :root {
+            --primary: #8347e5;
+            --primary-hover: #7035d3;
+            --background: #121212;
+            --text: #ffffff;
+            --text-secondary: #b3b3b3;
+            --border: #3a3a3a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #121212, #1a1a2e);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            background-color: rgba(25, 25, 35, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* 404 Page Specific */
+        .error-code {
+            font-size: 7rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary), #b491fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+            .error-code {
+                font-size: 5rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Background Animation */
+        .bg-animation {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .waveform {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+        }
+
+        @keyframes wave1 {
+            0% { transform: translateX(-50%) translateY(0) scale(0.5); }
+            100% { transform: translateX(-55%) translateY(5px) scale(0.55); }
+        }
+
+        @keyframes wave2 {
+            0% { transform: translateX(-40%) translateY(0) scale(0.7); }
+            100% { transform: translateX(-35%) translateY(-5px) scale(0.65); }
+        }
+
+        .wave1 {
+            background: radial-gradient(ellipse at center, var(--primary) 0%, transparent 60%);
+            animation: wave1 8s infinite alternate ease-in-out;
+        }
+
+        .wave2 {
+            background: radial-gradient(ellipse at center, #4a2b82 0%, transparent 60%);
+            animation: wave2 10s infinite alternate ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="waveform wave1"></div>
+        <div class="waveform wave2"></div>
+    </div>
+
+    <div class="container fade-in">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4V20M18 8V16M6 8V16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="logo-text">Wavelength</div>
+        </div>
+        
+        <div class="error-code">404</div>
+        
+        <h1>Page Not Found</h1>
+        <p>The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+        
+        <a href="/" class="button">Back to Home</a>
+    </div>
+
+    <script>
+        // Add some interactivity to the 404 page
+        document.addEventListener('mousemove', function(e) {
+            const wave1 = document.querySelector('.wave1');
+            const wave2 = document.querySelector('.wave2');
+            
+            // Subtle parallax effect on mouse move
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            
+            wave1.style.transform = `translateX(${-50 + moveX}%) translateY(${moveY}px) scale(0.5)`;
+            wave2.style.transform = `translateX(${-40 - moveX}%) translateY(${-moveY}px) scale(0.7)`;
+        });
+    </script>
+</body>
+</html>

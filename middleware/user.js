@@ -10,7 +10,8 @@ function restrictToLoggedinUserOnly(req, res, next) {
     req.user = verified;
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
+    // res.status(401).json({ error: 'Invalid token' });
+    res.render("session")
   }
 }
 

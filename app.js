@@ -38,6 +38,10 @@ app.get('/studio', restrictToLoggedinUserOnly, (req, res) => {
   res.redirect(`/studio/${roomId}`);
 });
 
+app.use((req, res) => {
+  res.status(404).render('404');
+});
+
 io.on('connection', socket => {
   console.log(`Client connected: ${socket.id}`);
 

@@ -98,6 +98,11 @@ io.on('connection', socket => {
     io.to(roomId).emit("start-recording", { startTime });
   });
 
+  socket.on("recording-stopped", (roomId) => {
+    io.to(roomId).emit("stop-rec"); // notify guests
+  });
+
+
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
   });

@@ -185,7 +185,11 @@ const recordingSection = document.getElementById('recording-section');
 let isHostRecording = false;
 
 recordBtn.addEventListener('click', async () => {
-  socket.emit("start-recording-request", roomId);
+  if (isHostRecording) {
+    stopLocalRecording(); 
+  } else {
+    socket.emit("start-recording-request", roomId);
+  }
 });
 
 const countdownOverlay = document.getElementById('countdownOverlay');
@@ -258,6 +262,20 @@ function startLocalRecording() {
   console.log("Recording started.");
   // Your actual recording logic goes here
 }
+
+function stopLocalRecording() {
+  isHostRecording = false;
+  socket.emit("recording-stopped", roomId);
+  recordBtnText.textContent = 'Record';
+  // recordingSection.style.display = 'none';
+  alert("Recording has been stoped!");
+  // Your actual recording logic goes here
+}
+
+socket.on("stop-rec", () => {
+  recordingSection.style.display = 'none';
+});
+
 
 
 

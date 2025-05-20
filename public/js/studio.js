@@ -268,7 +268,8 @@ function startLocalRecording() {
   // Initialize MediaRecorder with existing WebRTC localStream
   mediaRecorder = new MediaRecorder(localStream, {
     mimeType: 'video/webm;codecs=vp9',
-    videoBitsPerSecond: 5000000
+     videoBitsPerSecond: 4000000, // 4 Mbps for video
+     audioBitsPerSecond: 128000   // 128 kbps for audio
   });
 
   mediaRecorder.ondataavailable = function (event) {
@@ -318,6 +319,11 @@ function stopLocalRecording() {
   recordBtnText.textContent = 'Record';
   socket.emit("recording-stopped", roomId);
   alert("Recording has been stopped!");
+}
+
+socket.on("stop-rec", () => {
+  recordingSection.style.display = 'none';
+  uploadingStatus.style.display = "none";
 
   // Show uploading final chunks
   document.getElementById("uploadingStatus").style.display = "block";
@@ -339,11 +345,6 @@ function stopLocalRecording() {
       console.log("All uploads completed.");
     }
   }, 500);
-}
-
-socket.on("stop-rec", () => {
-  recordingSection.style.display = 'none';
-  uploadingStatus.style.display = "none";
 });
 
 

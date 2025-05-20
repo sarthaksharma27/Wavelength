@@ -8,6 +8,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const cookieParser = require('cookie-parser');
 const prisma = require("./prisma/client.js");
+const startMergeDocker = require("./utils/startMergeDocker.js")
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -102,6 +103,7 @@ io.on('connection', socket => {
 
   socket.on("recording-stopped", (roomId) => {
     io.to(roomId).emit("stop-rec"); // notify guests
+    startMergeDocker(roomId);
   });
 
 

@@ -285,7 +285,7 @@ function startLocalRecording() {
 
       const formData = new FormData();
       formData.append("file", chunkBlob, `chunk-${chunkIndex}.webm`);
-      formData.append("sessionId", roomId);
+      formData.append("roomId", roomId);
       formData.append("userType", isInitiator ? "host" : "guest");
 
       isUploading = true;

@@ -7,14 +7,14 @@ const path = require("path");
 const upload = multer();
 
 router.post("/", upload.single("file"), async (req, res) => {
-  const { sessionId, userType } = req.body;
+  const { roomId, userType } = req.body;
   const chunk = req.file;
 
-  if (!chunk || !sessionId || !userType) {
+  if (!chunk || !roomId || !userType) {
     return res.status(400).send("Missing required fields.");
   }
 
-  const baseDir = path.join(__dirname, "recordings", sessionId, userType);
+  const baseDir = path.join(__dirname, "recordings", roomId, userType);
 
   // Create directory if not exists
   fs.mkdirSync(baseDir, { recursive: true });

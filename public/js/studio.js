@@ -1,5 +1,6 @@
 const localVideo = document.getElementById('local-video');
 const inviteBtn = document.getElementById('invite-btn');
+const recordBtn = document.getElementById('record-btn');
 
 const micBtn = document.querySelector('.control-button:nth-child(2)');
 const camBtn = document.querySelector('.control-button:nth-child(3)');
@@ -178,6 +179,26 @@ inviteBtn.addEventListener('click', async () => {
     alert("Something went wrong while generating invite link.");
   }
 });
+
+recordBtn.addEventListener('click', async () => {
+  socket.emit("start-recording-request", roomId);
+});
+
+socket.on("start-recording", ({ startTime }) => {
+  const delay = startTime - Date.now();
+  if (delay > 0) {
+    setTimeout(() => {
+      startLocalRecording();
+    }, delay);
+  } else {
+    startLocalRecording();
+  }
+});
+
+function startLocalRecording() {
+  console.log("recording has been started after 5 sec");
+  
+}
 
 
 // ==== Init on Load ====

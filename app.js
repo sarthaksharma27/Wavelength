@@ -93,6 +93,11 @@ io.on('connection', socket => {
     socket.to(roomId).emit('ice-candidate', { candidate });
   });
 
+  socket.on("start-recording-request", (roomId) => {
+    const startTime = Date.now() + 5000;
+    io.to(roomId).emit("start-recording", { startTime });
+  });
+
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
   });

@@ -35,14 +35,18 @@
             Live stream
         </button>
 
-        <button class="stream-button" id="invite-btn">
+
+            <% const isLoggedIn = typeof user !== 'undefined' && user; %>
+        <button class="stream-button <%= !isLoggedIn ? 'hidden' : '' %>" id="invite-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-                        <polyline points="16 6 12 2 8 6"/>
-                        <line x1="12" y1="2" x2="12" y2="15"/>
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                <polyline points="16 6 12 2 8 6"/>
+                <line x1="12" y1="2" x2="12" y2="15"/>
             </svg>
-            Invite Guest
+            Invite Guest 
         </button>
+
+
     </div>
     
     <div class="main-content">
@@ -64,14 +68,14 @@
     
     <div class="controls">
         <div class="control-buttons">
-            <button class="control-button">
+            <button class="control-button <%= !isLoggedIn ? 'hidden' : '' %>">
                 <div class="control-button-icon record-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <circle cx="12" cy="12" r="3" fill="white"/>
                     </svg>
                 </div>
-                <span class="control-button-text">Start</span>
+                <span class="control-button-text">Start Recording</span>
             </button>
             
             <button class="control-button">

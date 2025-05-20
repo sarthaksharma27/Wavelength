@@ -29,7 +29,7 @@ async function requestMediaAccess() {
         // Show actual video settings in qualityBadge
         const videoTrack = stream.getVideoTracks()[0];
         const settings = videoTrack.getSettings();
-        qualityBadge.textContent = `${settings.width || 1280}p / ${settings.frameRate || 30}fps`;
+        qualityBadge.textContent = `${settings.height || 720}p / ${settings.frameRate || 30}fps`;
 
         noVideoPlaceholder.classList.add('hidden');
         videoPreview.classList.remove('hidden');

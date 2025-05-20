@@ -253,27 +253,97 @@ socket.on("start-recording", ({ startTime }) => {
   }
 });
 
+let mediaRecorder;
+let isUploading = false;
+let chunkIndex = 0;
+
 function startLocalRecording() {
   recordBtnText.textContent = 'Stop';
   isHostRecording = true;
+
   if (isHostRecording) {
     recordingSection.style.display = 'block';
   }
-  console.log("Recording started.");
-  // Your actual recording logic goes here
+
+  // Initialize MediaRecorder with existing WebRTC localStream
+  mediaRecorder = new MediaRecorder(localStream, {
+    mimeType: 'video/webm;codecs=vp9',
+    videoBitsPerSecond: 5000000
+  });
+
+  mediaRecorder.ondataavailable = function (event) {
+    if (event.data.size > 0) {
+      chunkIndex++;
+      const chunkBlob = event.data;
+
+      // Show uploading UI
+      const uploadingStatus = document.getElementById("uploadingStatus");
+      const uploadingText = document.getElementById("uploadingText");
+      uploadingStatus.style.display = "block";
+      uploadingText.textContent = `Uploading chunk ${chunkIndex}…`;
+
+      const formData = new FormData();
+      formData.append("file", chunkBlob, `chunk-${chunkIndex}.webm`);
+      formData.append("sessionId", roomId);
+      formData.append("userType", isInitiator ? "host" : "guest");
+
+      isUploading = true;
+
+      fetch("/upload-chunk", {
+        method: "POST",
+        body: formData,
+      }).then(() => {
+        isUploading = false;
+
+        // Hide upload UI after stop
+        // if (!isHostRecording) {
+        //   uploadingStatus.style.display = "none";
+        // }
+      }).catch((err) => {
+        console.error("Upload failed", err);
+      });
+    }
+  };
+
+  mediaRecorder.onstop = function () {
+    console.log("MediaRecorder stopped.");
+  };
+
+  mediaRecorder.start(5000); // Record and emit every 5 seconds
 }
+
 
 function stopLocalRecording() {
   isHostRecording = false;
-  socket.emit("recording-stopped", roomId);
   recordBtnText.textContent = 'Record';
-  // recordingSection.style.display = 'none';
-  alert("Recording has been stoped!");
-  // Your actual recording logic goes here
+  socket.emit("recording-stopped", roomId);
+  alert("Recording has been stopped!");
+
+  // Show uploading final chunks
+  document.getElementById("uploadingStatus").style.display = "block";
+  document.getElementById("uploadingText").textContent = "Finalizing upload…";
+
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    mediaRecorder.stop();
+  }
+
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+  }
+
+  // Poll until the final chunk finishes uploading
+  const checkUploadComplete = setInterval(() => {
+    if (!isUploading) {
+      clearInterval(checkUploadComplete);
+      document.getElementById("uploadingStatus").style.display = "none";
+      console.log("All uploads completed.");
+    }
+  }, 500);
 }
 
 socket.on("stop-rec", () => {
   recordingSection.style.display = 'none';
+  uploadingStatus.style.display = "none";
 });
 
 

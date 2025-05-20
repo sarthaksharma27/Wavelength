@@ -21,11 +21,13 @@ const userRouter = require('./routes/userRouter.js');
 const restrictToLoggedinUserOnly = require('./middleware/user.js');
 const dasRouter = require('./routes/dasRouter.js');
 const studioRouter = require('./routes/studioRouter.js');
+const uplodeRouter = require('./routes/uplodeRouter.js')
 
 app.use('/', staticRouter);
 app.use('/user', userRouter);
 app.use('/dashboard', restrictToLoggedinUserOnly, dasRouter);
 app.use('/studio', studioRouter)
+app.use('/upload-chunk', uplodeRouter)
 
 
 app.get('/pre', restrictToLoggedinUserOnly, async (req, res) => {

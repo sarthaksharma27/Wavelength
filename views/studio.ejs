@@ -123,6 +123,16 @@
             </button>
         </div>
     </div>
+    <div class="countdown-overlay" id="countdownOverlay">
+    <div class="countdown-container">
+        <div class="countdown-text">Recording will start in</div>
+        <div class="countdown-number" id="countdownNumber">5</div>
+        <div class="recording-text" id="recordingText">
+        Recording <span class="pulse-dot"></span>
+        </div>
+    </div>
+    </div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
     window.roomId = "<%= roomId %>";

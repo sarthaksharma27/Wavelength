@@ -184,9 +184,60 @@ recordBtn.addEventListener('click', async () => {
   socket.emit("start-recording-request", roomId);
 });
 
+const countdownOverlay = document.getElementById('countdownOverlay');
+const countdownNumber = document.getElementById('countdownNumber');
+const recordingText = document.getElementById('recordingText');
+
+function startCountdown(duration, callback) {
+  countdownOverlay.classList.add('show');
+  let count = duration;
+  countdownNumber.textContent = count;
+  countdownNumber.classList.add('countdown-pulse');
+
+  const countdownInterval = setInterval(() => {
+    count--;
+
+    if (count >= 0) {
+      countdownNumber.classList.remove('countdown-pulse');
+      void countdownNumber.offsetWidth; // reflow
+      countdownNumber.textContent = count;
+      countdownNumber.classList.add('countdown-pulse');
+    }
+
+    if (count === 0) {
+      clearInterval(countdownInterval);
+
+      setTimeout(() => {
+        countdownNumber.style.opacity = '0';
+        recordingText.style.opacity = '1';
+
+        // Delay a bit before calling actual recording function
+        setTimeout(() => {
+          countdownOverlay.classList.remove('show');
+          // Reset state
+          setTimeout(() => {
+            countdownNumber.style.opacity = '1';
+            recordingText.style.opacity = '0';
+            countdownNumber.textContent = duration;
+          }, 500);
+
+          if (typeof callback === 'function') callback();
+        }, 1000);
+      }, 1000);
+    }
+  }, 1000);
+}
+
+// Socket flow integration
 socket.on("start-recording", ({ startTime }) => {
   const delay = startTime - Date.now();
+
   if (delay > 0) {
+    startCountdown(5, () => {
+      startLocalRecording(); // call actual recording start
+    });
+
+    // Just in case there's any drift in delay logic
     setTimeout(() => {
       startLocalRecording();
     }, delay);
@@ -196,9 +247,10 @@ socket.on("start-recording", ({ startTime }) => {
 });
 
 function startLocalRecording() {
-  console.log("recording has been started after 5 sec");
-  
+  console.log("Recording started.");
+  // Your actual recording logic goes here
 }
+
 
 
 // ==== Init on Load ====

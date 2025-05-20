@@ -1,6 +1,5 @@
 const localVideo = document.getElementById('local-video');
 const inviteBtn = document.getElementById('invite-btn');
-const recordBtn = document.getElementById('record-btn');
 
 const micBtn = document.querySelector('.control-button:nth-child(2)');
 const camBtn = document.querySelector('.control-button:nth-child(3)');
@@ -180,6 +179,9 @@ inviteBtn.addEventListener('click', async () => {
   }
 });
 
+const recordBtn = document.getElementById('record-btn');
+const recordBtnText = recordBtn.querySelector('.control-button-text');
+
 recordBtn.addEventListener('click', async () => {
   socket.emit("start-recording-request", roomId);
 });
@@ -247,6 +249,7 @@ socket.on("start-recording", ({ startTime }) => {
 });
 
 function startLocalRecording() {
+  recordBtnText.textContent = 'Stop';
   console.log("Recording started.");
   // Your actual recording logic goes here
 }

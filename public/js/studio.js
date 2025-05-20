@@ -181,6 +181,8 @@ inviteBtn.addEventListener('click', async () => {
 
 const recordBtn = document.getElementById('record-btn');
 const recordBtnText = recordBtn.querySelector('.control-button-text');
+const recordingSection = document.getElementById('recording-section');
+let isHostRecording = false;
 
 recordBtn.addEventListener('click', async () => {
   socket.emit("start-recording-request", roomId);
@@ -236,10 +238,9 @@ socket.on("start-recording", ({ startTime }) => {
 
   if (delay > 0) {
     startCountdown(5, () => {
-      startLocalRecording(); // call actual recording start
+      startLocalRecording(); 
     });
 
-    // Just in case there's any drift in delay logic
     setTimeout(() => {
       startLocalRecording();
     }, delay);
@@ -250,6 +251,10 @@ socket.on("start-recording", ({ startTime }) => {
 
 function startLocalRecording() {
   recordBtnText.textContent = 'Stop';
+  isHostRecording = true;
+  if (isHostRecording) {
+    recordingSection.style.display = 'block';
+  }
   console.log("Recording started.");
   // Your actual recording logic goes here
 }

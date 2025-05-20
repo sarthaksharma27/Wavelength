@@ -327,3 +327,23 @@
     opacity: 0.5;
   }
 }
+
+.recording-dot {
+    width: 12px;
+    height: 12px;
+    background-color: #ff4a4a;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
+    animation: blink-dot 1.5s infinite;
+}
+
+@keyframes blink-dot {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}

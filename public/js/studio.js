@@ -310,7 +310,7 @@ function startLocalRecording() {
     console.log("MediaRecorder stopped.");
   };
 
-  mediaRecorder.start(5000); // Record and emit every 5 seconds
+  mediaRecorder.start(9000); // Record and emit every 5 seconds
 }
 
 

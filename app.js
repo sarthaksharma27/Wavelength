@@ -103,7 +103,7 @@ io.on('connection', socket => {
 
   socket.on("recording-stopped", (roomId) => {
     io.to(roomId).emit("stop-rec"); // notify guests
-    startMergeDocker(roomId);
+    // startMergeDocker(roomId);
   });
 
 

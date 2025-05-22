@@ -256,14 +256,10 @@ socket.on("start-recording", ({ startTime }) => {
 let mediaRecorder;
 let isUploading = false;
 let chunkIndex = 0;
-let chunkDuration = 7000; // 7 seconds
-let recordingTimer;
+let recordingTimer = null;
 
-const options = {
-  mimeType: 'video/webm;codecs=vp9,opus',
-  audioBitsPerSecond: 128000,
-  videoBitsPerSecond: 4000000
-};
+const CHUNK_DURATION_MS = 7000;
+const RESTART_DELAY_MS = 300;
 
 function startLocalRecording() {
   recordBtnText.textContent = 'Stop';
@@ -277,14 +273,22 @@ function startLocalRecording() {
 }
 
 function startNewRecorder() {
+  const options = {
+    mimeType: 'video/webm;codecs=vp9,opus',
+    audioBitsPerSecond: 128000,
+    videoBitsPerSecond: 4000000,
+  };
+
   mediaRecorder = new MediaRecorder(localStream, options);
+  const chunkStartTime = Date.now();
 
   mediaRecorder.ondataavailable = function (event) {
     if (event.data.size > 0) {
       chunkIndex++;
       const chunkBlob = event.data;
+      const duration = Date.now() - chunkStartTime;
+      console.log(`Chunk ${chunkIndex} duration: ${duration} ms`);
 
-      // Show uploading UI
       const uploadingStatus = document.getElementById("uploadingStatus");
       const uploadingText = document.getElementById("uploadingText");
       uploadingStatus.style.display = "block";
@@ -310,19 +314,22 @@ function startNewRecorder() {
 
   mediaRecorder.onstop = () => {
     if (isHostRecording) {
-      // Start a new recorder immediately for the next chunk
-      startNewRecorder();
+      // Slight delay to ensure stream is settled before restarting
+      setTimeout(() => {
+        startNewRecorder();
+      }, RESTART_DELAY_MS);
     }
   };
 
   mediaRecorder.start();
+  console.log(`Started chunk ${chunkIndex + 1}`);
 
-  // Stop recording after chunkDuration to finalize the chunk
+  // Stop this chunk after CHUNK_DURATION_MS
   recordingTimer = setTimeout(() => {
     if (mediaRecorder && mediaRecorder.state === "recording") {
       mediaRecorder.stop();
     }
-  }, chunkDuration);
+  }, CHUNK_DURATION_MS);
 }
 
 function stopLocalRecording() {
@@ -331,36 +338,40 @@ function stopLocalRecording() {
   socket.emit("recording-stopped", roomId);
   alert("Recording has been stopped!");
 
+  // Prevent next chunk timer
   clearTimeout(recordingTimer);
 
+  // Finalize current recording
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
     mediaRecorder.stop();
   }
 
+  // Stop all local media tracks
   if (localStream) {
     localStream.getTracks().forEach(track => track.stop());
   }
-}
 
-// Your socket listener stays the same for cleanup:
-socket.on("stop-rec", () => {
-  recordingSection.style.display = 'none';
-  uploadingStatus.style.display = "none";
+  // Wait for final upload
+  const uploadingStatus = document.getElementById("uploadingStatus");
+  const uploadingText = document.getElementById("uploadingText");
 
-  document.getElementById("uploadingStatus").style.display = "block";
-  document.getElementById("uploadingText").textContent = "Finalizing upload…";
+  uploadingStatus.style.display = "block";
+  uploadingText.textContent = "Finalizing upload…";
 
-  stopLocalRecording();
-
-  // Poll until the final chunk finishes uploading
   const checkUploadComplete = setInterval(() => {
     if (!isUploading) {
       clearInterval(checkUploadComplete);
-      document.getElementById("uploadingStatus").style.display = "none";
+      uploadingStatus.style.display = "none";
       console.log("All uploads completed.");
     }
   }, 500);
+}
+
+socket.on("stop-rec", () => {
+  recordingSection.style.display = 'none';
+  stopLocalRecording();
 });
+
 
 
 

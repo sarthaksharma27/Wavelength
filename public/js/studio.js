@@ -280,41 +280,44 @@ function startNewRecorder() {
   };
 
   mediaRecorder = new MediaRecorder(localStream, options);
-  const chunkStartTime = Date.now();
+
+  let lastChunkTime = Date.now(); // Initialize when recording starts
 
   mediaRecorder.ondataavailable = function (event) {
-    if (event.data.size > 0) {
-      chunkIndex++;
-      const chunkBlob = event.data;
-      const duration = Date.now() - chunkStartTime;
-      console.log(`Chunk ${chunkIndex} duration: ${duration} ms`);
+  if (event.data.size > 0) {
+    const currentChunkTime = Date.now(); // Capture time when chunk ends
+    chunkIndex++;
+    const chunkBlob = event.data;
 
-      const uploadingStatus = document.getElementById("uploadingStatus");
-      const uploadingText = document.getElementById("uploadingText");
-      uploadingStatus.style.display = "block";
-      uploadingText.textContent = `Uploading chunk ${chunkIndex}…`;
+    const uploadingStatus = document.getElementById("uploadingStatus");
+    const uploadingText = document.getElementById("uploadingText");
+    uploadingStatus.style.display = "block";
+    uploadingText.textContent = `Uploading chunk ${chunkIndex}…`;
 
-      const formData = new FormData();
-      formData.append("file", chunkBlob, `chunk-${chunkIndex}.webm`);
-      formData.append("roomId", roomId);
-      formData.append("userType", isInitiator ? "host" : "guest");
+    const formData = new FormData();
+    formData.append("file", chunkBlob, `chunk-${chunkIndex}.webm`);
+    formData.append("roomId", roomId);
+    formData.append("userType", isInitiator ? "host" : "guest");
+    formData.append("startTime", lastChunkTime);    // when this chunk started
+    formData.append("endTime", currentChunkTime);   // when this chunk ended
 
-      isUploading = true;
+    lastChunkTime = currentChunkTime; // Update for next chunk
 
-      fetch("/upload-chunk", {
-        method: "POST",
-        body: formData,
-      }).then(() => {
-        isUploading = false;
-      }).catch((err) => {
-        console.error("Upload failed", err);
-      });
-    }
-  };
+    isUploading = true;
+
+    fetch("/upload-chunk", {
+      method: "POST",
+      body: formData,
+    }).then(() => {
+      isUploading = false;
+    }).catch((err) => {
+      console.error("Upload failed", err);
+    });
+  }
+};
 
   mediaRecorder.onstop = () => {
     if (isHostRecording) {
-      // Slight delay to ensure stream is settled before restarting
       setTimeout(() => {
         startNewRecorder();
       }, RESTART_DELAY_MS);
@@ -322,7 +325,6 @@ function startNewRecorder() {
   };
 
   mediaRecorder.start();
-  console.log(`Started chunk ${chunkIndex + 1}`);
 
   // Stop this chunk after CHUNK_DURATION_MS
   recordingTimer = setTimeout(() => {

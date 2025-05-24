@@ -7,32 +7,25 @@ const path = require("path");
 const upload = multer();
 
 router.post("/", upload.single("file"), async (req, res) => {
-  const { roomId, userType } = req.body;
+  const { roomId, userType, startTime, endTime } = req.body;
   const chunk = req.file;
 
-  if (!chunk || !roomId || !userType) {
+  if (!chunk || !roomId || !userType || !startTime || !endTime) {
     return res.status(400).send("Missing required fields.");
   }
 
   const baseDir = path.join(__dirname, "recordings", roomId, userType);
-
-  // Create directory if not exists
   fs.mkdirSync(baseDir, { recursive: true });
 
-  const filename = path.join(baseDir, chunk.originalname);
+  const chunkFilename = path.join(baseDir, chunk.originalname);
+  fs.writeFileSync(chunkFilename, chunk.buffer);
 
-  // Save the file buffer to disk
-  fs.writeFile(filename, chunk.buffer, (err) => {
-    if (err) {
-      console.error("Failed to save chunk:", err);
-      return res.status(500).send("Error saving file.");
-    }
+  const metadataFile = path.join(baseDir, `${userType}.txt`);
+  const metadataLine = `${chunk.originalname},${startTime},${endTime}\n`;
+  fs.appendFileSync(metadataFile, metadataLine);
 
-    console.log(`Saved: ${filename}`);
-    return res.sendStatus(200);
-  });
+  console.log(`Saved: ${chunkFilename}`);
+  return res.sendStatus(200);
 });
-
-
 
 module.exports = router;

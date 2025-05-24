@@ -258,7 +258,7 @@ let isUploading = false;
 let chunkIndex = 0;
 let recordingTimer = null;
 
-const CHUNK_DURATION_MS = 7000;
+const CHUNK_DURATION_MS = 5000;
 const RESTART_DELAY_MS = 300;
 
 function startLocalRecording() {
@@ -337,7 +337,10 @@ function stopLocalRecording() {
   recordBtnText.textContent = 'Record';
   socket.emit("recording-stopped", roomId);
   alert("Recording has been stopped!");
+}
 
+socket.on("stop-rec", () => {
+  recordingSection.style.display = 'none';
   // Prevent next chunk timer
   clearTimeout(recordingTimer);
 
@@ -365,11 +368,6 @@ function stopLocalRecording() {
       console.log("All uploads completed.");
     }
   }, 500);
-}
-
-socket.on("stop-rec", () => {
-  recordingSection.style.display = 'none';
-  stopLocalRecording();
 });
 
 

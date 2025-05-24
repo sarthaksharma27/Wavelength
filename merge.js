@@ -1,77 +1,91 @@
-const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
-function generateConcatFile(roomId, userType) {
-  const baseDir = path.join(__dirname, "routes", "recordings", roomId, userType);
-  const files = fs.readdirSync(baseDir)
-    .filter(f => f.endsWith(".webm"))
-    .sort();
+// Fix: Point to correct recordings folder inside routes
+const recordingsDir = path.join(__dirname, "routes", "recordings");
 
-  if (files.length === 0) throw new Error(`${userType} has no chunks to merge`);
+const ffmpeg = (cmd) => {
+  console.log(`[ffmpeg] Running: ${cmd}`);
+  execSync(cmd, { stdio: "inherit" });
+};
 
-  const concatListPath = path.join(baseDir, "fileList.txt");
-  const content = files.map(f => `file '${path.join(baseDir, f).replace(/\\/g, '/')}'`).join("\n");
-
-  fs.writeFileSync(concatListPath, content);
-  return concatListPath;
+function parseMetadata(filePath) {
+  const lines = fs.readFileSync(filePath, "utf-8").trim().split("\n");
+  return lines.map((line) => line.split(",")[0]);
 }
 
-function mergeUserChunks(roomId, userType) {
-  return new Promise((resolve, reject) => {
-    const baseDir = path.join(__dirname, "routes", "recordings", roomId, userType);
-    let concatFile;
-    try {
-      concatFile = generateConcatFile(roomId, userType);
-    } catch (e) {
-      return reject(e);
+function concatChunks(roomId, userType, outputPath) {
+  const userDir = path.join(recordingsDir, roomId, userType);
+  const metadataPath = path.join(userDir, `${userType}.txt`);
+
+  console.log(`[concatChunks] Checking: ${metadataPath}`);
+
+  if (!fs.existsSync(metadataPath)) {
+    console.error(`[concatChunks] Metadata file missing: ${metadataPath}`);
+    if (fs.existsSync(userDir)) {
+      console.log(`[concatChunks] Files in ${userDir}:`, fs.readdirSync(userDir));
     }
-    const outputFile = path.join(baseDir, `${userType}Merged.webm`);
+    return null;
+  }
 
-    const cmd = `ffmpeg -f concat -safe 0 -i "${concatFile}" -c copy "${outputFile}"`;
+  const chunks = parseMetadata(metadataPath);
+  if (chunks.length === 0) {
+    console.error(`[concatChunks] No chunks listed for ${userType}`);
+    return null;
+  }
 
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error merging ${userType} chunks:`, stderr);
-        return reject(error);
-      }
-      console.log(`${userType} chunks merged successfully to ${outputFile}`);
-      resolve(outputFile);
-    });
-  });
+  const listPath = path.join(userDir, `concat_list.txt`);
+  const listFile = chunks.map(file => `file '${path.join(userDir, file).replace(/\\/g, "/")}'`).join("\n");
+
+  fs.writeFileSync(listPath, listFile);
+
+  const cmd = `ffmpeg -y -f concat -safe 0 -i "${listPath}" -c copy "${outputPath}"`;
+  ffmpeg(cmd);
+  return outputPath;
 }
 
-function combineHostGuest(roomId, hostVideoPath, guestVideoPath) {
-  return new Promise((resolve, reject) => {
-    const outputFile = path.join(__dirname, "routes", "recordings", roomId, "combined.webm");
+function generateBlackVideo(outputPath, duration = 10, resolution = "640x360") {
+  ffmpeg(`ffmpeg -y -f lavfi -i color=black:s=${resolution}:d=${duration} -f lavfi -i anullsrc -shortest -c:v libx264 -c:a aac "${outputPath}"`);
+  return outputPath;
+}
 
-    const cmd = `ffmpeg -i "${hostVideoPath}" -i "${guestVideoPath}" -filter_complex "[0:v]scale=iw/2:ih/2[left]; [1:v]scale=iw/2:ih/2[right]; [left][right]hstack=inputs=2[out]" -map "[out]" -c:v libvpx -crf 10 -b:v 1M "${outputFile}"`;
-
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        console.error("Error combining host and guest videos:", stderr);
-        return reject(error);
-      }
-      console.log("Combined video created at", outputFile);
-      resolve(outputFile);
-    });
-  });
+function mergeSideBySide(roomId, hostFile, guestFile, outputPath) {
+  ffmpeg(`ffmpeg -y -i "${hostFile}" -i "${guestFile}" -filter_complex "[0:v]scale=640:360[hv];[1:v]scale=640:360[gv];[hv][gv]hstack=inputs=2[v];[0:a][1:a]amix=inputs=2[a]" -map "[v]" -map "[a]" -c:v libx264 -c:a aac "${outputPath}"`);
 }
 
 async function startMerging(roomId) {
-  try {
-    console.log(`Starting merge for room: ${roomId}`);
-    const hostMerged = await mergeUserChunks(roomId, "host");
-    const guestMerged = await mergeUserChunks(roomId, "guest");
+  console.log(`[startMerging] Starting for room: ${roomId}`);
 
-    const combinedVideo = await combineHostGuest(roomId, hostMerged, guestMerged);
+  const outputDir = path.join(recordingsDir, roomId, "merged");
+  fs.mkdirSync(outputDir, { recursive: true });
 
-    console.log(`Merging complete for room ${roomId}. Combined file: ${combinedVideo}`);
+  const hostPath = path.join(outputDir, "host_full.mp4");
+  const guestPath = path.join(outputDir, "guest_full.mp4");
+  const finalOutput = path.join(outputDir, "final_combined.mp4");
 
-    // Optional: notify clients here
-  } catch (error) {
-    console.error("Error during merging process:", error);
+  const hostExists = concatChunks(roomId, "host", hostPath);
+  const guestExists = concatChunks(roomId, "guest", guestPath);
+
+  if (!hostExists) {
+    console.error("[startMerging] ❌ No host video found. Cannot proceed.");
+    return;
   }
+
+  let guestInput = guestPath;
+  if (!guestExists) {
+    console.log("[startMerging] ⚠ Guest video not found. Generating black screen placeholder.");
+
+    const durationCmd = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${hostPath}"`;
+    const duration = parseFloat(execSync(durationCmd).toString().trim());
+
+    const blackPath = path.join(outputDir, "guest_black.mp4");
+    generateBlackVideo(blackPath, duration);
+    guestInput = blackPath;
+  }
+
+  mergeSideBySide(roomId, hostPath, guestInput, finalOutput);
+  console.log(`[startMerging] ✅ Merged video created at: ${finalOutput}`);
 }
 
 module.exports = { startMerging };

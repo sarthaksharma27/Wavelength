@@ -257,9 +257,12 @@ let mediaRecorder;
 let isUploading = false;
 let chunkIndex = 0;
 let recordingTimer = null;
-
 const CHUNK_DURATION_MS = 5000;
 const RESTART_DELAY_MS = 300;
+
+let recordingStartTime = null;  // Global start timestamp of whole recording session
+let currentChunkStartTime = 0;  // Relative start time of current chunk
+let chunkRecordingStartTime = null;  // When current chunk started recording
 
 function startLocalRecording() {
   recordBtnText.textContent = 'Stop';
@@ -269,10 +272,20 @@ function startLocalRecording() {
     recordingSection.style.display = 'block';
   }
 
+  // Reset globals when starting fresh
+  recordingStartTime = Date.now();
+  currentChunkStartTime = 0;
+  chunkIndex = 0;
+
   startNewRecorder();
 }
 
 function startNewRecorder() {
+  // Don't start new recorder if recording has been stopped
+  if (!isHostRecording) {
+    return;
+  }
+
   const options = {
     mimeType: 'video/webm;codecs=vp9,opus',
     audioBitsPerSecond: 128000,
@@ -281,42 +294,53 @@ function startNewRecorder() {
 
   mediaRecorder = new MediaRecorder(localStream, options);
 
-  let lastChunkTime = Date.now(); // Initialize when recording starts
-
   mediaRecorder.ondataavailable = function (event) {
-  if (event.data.size > 0) {
-    const currentChunkTime = Date.now(); // Capture time when chunk ends
-    chunkIndex++;
-    const chunkBlob = event.data;
+    if (event.data.size > 0 && recordingStartTime && chunkRecordingStartTime) {
+      chunkIndex++;
 
-    const uploadingStatus = document.getElementById("uploadingStatus");
-    const uploadingText = document.getElementById("uploadingText");
-    uploadingStatus.style.display = "block";
-    uploadingText.textContent = `Uploading chunk ${chunkIndex}…`;
+      // Calculate actual chunk duration
+      const chunkEndTime = Date.now();
+      const actualChunkDuration = chunkEndTime - chunkRecordingStartTime;
+      
+      // Calculate timestamps relative to recording start
+      const startTime = currentChunkStartTime;
+      const endTime = startTime + actualChunkDuration;
+      
+      // Update for next chunk
+      currentChunkStartTime = endTime;
 
-    const formData = new FormData();
-    formData.append("file", chunkBlob, `chunk-${chunkIndex}.webm`);
-    formData.append("roomId", roomId);
-    formData.append("userType", isInitiator ? "host" : "guest");
-    formData.append("startTime", lastChunkTime);    // when this chunk started
-    formData.append("endTime", currentChunkTime);   // when this chunk ended
+      const chunkBlob = event.data;
 
-    lastChunkTime = currentChunkTime; // Update for next chunk
+      const uploadingStatus = document.getElementById("uploadingStatus");
+      const uploadingText = document.getElementById("uploadingText");
+      uploadingStatus.style.display = "block";
+      uploadingText.textContent = `Uploading chunk ${chunkIndex}…`;
 
-    isUploading = true;
+      const formData = new FormData();
+      formData.append("file", chunkBlob, `chunk-${chunkIndex}.webm`);
+      formData.append("roomId", roomId);
+      formData.append("userType", isInitiator ? "host" : "guest");
+      formData.append("startTime", startTime);
+      formData.append("endTime", endTime);
 
-    fetch("/upload-chunk", {
-      method: "POST",
-      body: formData,
-    }).then(() => {
-      isUploading = false;
-    }).catch((err) => {
-      console.error("Upload failed", err);
-    });
-  }
-};
+      isUploading = true;
+
+      fetch("/upload-chunk", {
+        method: "POST",
+        body: formData,
+      }).then(() => {
+        isUploading = false;
+        uploadingStatus.style.display = "none";
+      }).catch((err) => {
+        console.error("Upload failed", err);
+        isUploading = false;
+        uploadingStatus.style.display = "none";
+      });
+    }
+  };
 
   mediaRecorder.onstop = () => {
+    // Only restart if recording is still active
     if (isHostRecording) {
       setTimeout(() => {
         startNewRecorder();
@@ -325,44 +349,80 @@ function startNewRecorder() {
   };
 
   mediaRecorder.start();
+  
+  // Mark when this chunk started recording
+  chunkRecordingStartTime = Date.now();
 
-  // Stop this chunk after CHUNK_DURATION_MS
+  // Stop this chunk after CHUNK_DURATION_MS to trigger new chunk creation
   recordingTimer = setTimeout(() => {
-    if (mediaRecorder && mediaRecorder.state === "recording") {
+    if (mediaRecorder && mediaRecorder.state === "recording" && isHostRecording) {
       mediaRecorder.stop();
     }
   }, CHUNK_DURATION_MS);
 }
 
 function stopLocalRecording() {
+  // Prevent double stopping
+  if (!isHostRecording) {
+    return;
+  }
+
   isHostRecording = false;
   recordBtnText.textContent = 'Record';
+  
+  // Emit stop signal to other participants
   socket.emit("recording-stopped", roomId);
+
+  // Clean up current recording
+  cleanupRecording();
+
   alert("Recording has been stopped!");
 }
 
-socket.on("stop-rec", () => {
-  recordingSection.style.display = 'none';
-  // Prevent next chunk timer
-  clearTimeout(recordingTimer);
+function cleanupRecording() {
+  // Stop chunk timer
+  if (recordingTimer) {
+    clearTimeout(recordingTimer);
+    recordingTimer = null;
+  }
 
-  // Finalize current recording
+  // Stop current recording if active
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
     mediaRecorder.stop();
   }
 
-  // Stop all local media tracks
+  // Reset globals for next recording session
+  recordingStartTime = null;
+  currentChunkStartTime = 0;
+  chunkRecordingStartTime = null;
+}
+
+socket.on("stop-rec", () => {
+  // Only handle if currently recording
+  if (!isHostRecording) {
+    return;
+  }
+
+  // Stop recording without emitting signal (to prevent loop)
+  isHostRecording = false;
+  recordBtnText.textContent = 'Record';
+  recordingSection.style.display = 'none';
+
+  // Clean up recording
+  cleanupRecording();
+
+  // Stop local stream tracks
   if (localStream) {
     localStream.getTracks().forEach(track => track.stop());
   }
 
-  // Wait for final upload
   const uploadingStatus = document.getElementById("uploadingStatus");
   const uploadingText = document.getElementById("uploadingText");
 
   uploadingStatus.style.display = "block";
   uploadingText.textContent = "Finalizing upload…";
 
+  // Wait for all uploads to complete
   const checkUploadComplete = setInterval(() => {
     if (!isUploading) {
       clearInterval(checkUploadComplete);
@@ -371,6 +431,9 @@ socket.on("stop-rec", () => {
     }
   }, 500);
 });
+
+
+
 
 
 

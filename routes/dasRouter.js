@@ -8,7 +8,7 @@ router.get("/", async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { id: userId },
     });
-   res.render("dashboard", {user});
+   res.render("dashboard/dashboard", {user});
 });
 
 module.exports = router;

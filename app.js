@@ -39,7 +39,7 @@ app.get('/pre', restrictToLoggedinUserOnly, async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { id: userId },
     });
-  res.render("preJoin", {user});
+  res.render("studio/preJoin", {user});
 });
 
 app.post('/generatetoken', async (req, res) => {

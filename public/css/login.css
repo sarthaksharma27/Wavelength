@@ -30,27 +30,20 @@
         }
         
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            color: var(--light-text);
-        }
-        
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            border: 2px solid var(--primary-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-purple);
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        background: linear-gradient(90deg, #8c5aff, #b974ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+       }
+
+        .logo svg {
+            height: 28px;
         }
         
         .header-buttons {

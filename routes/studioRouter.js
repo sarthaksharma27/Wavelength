@@ -17,9 +17,9 @@ router.get('/:roomId', restrictToLoggedinUserOnly, async (req, res) => {
     const user = await prisma.user.findUnique({
         where: { id: userId },
     });
-   res.render('studio', { roomId: req.params.roomId, user });
+   res.render('studio/studio', { roomId: req.params.roomId, user });
   } else { // you are a guest
-    res.render('studio', { roomId: req.params.roomId });
+    res.render('studio/studio', { roomId: req.params.roomId });
   }
   
 });

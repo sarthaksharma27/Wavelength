@@ -26,8 +26,7 @@ async function handleUserLogin(req, res) {
   });
 
   if (!user) {
-    console.error(`User not found for email: ${email}. Invalid credentials.`);
-    return res.render("signup");
+    return res.render("user/signup");
   }
 
   const token = setUser(user);

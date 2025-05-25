@@ -8,8 +8,10 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const cookieParser = require('cookie-parser');
 const prisma = require("./prisma/client.js");
-const startMergeDocker = require("./utils/startMergeDocker.js")
 const { startMerging } = require('./merge.js');
+require('dotenv').config();
+const methodOverride = require('method-override');
+
 
 
 app.use(express.json());
@@ -18,6 +20,7 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use(methodOverride('_method'));
 
 const staticRouter = require('./routes/staticRouter.js');
 const userRouter = require('./routes/userRouter.js');
@@ -25,10 +28,12 @@ const restrictToLoggedinUserOnly = require('./middleware/user.js');
 const dasRouter = require('./routes/dasRouter.js');
 const studioRouter = require('./routes/studioRouter.js');
 const uplodeRouter = require('./routes/uplodeRouter.js')
+const profileRouter = require('./routes/profileRouter.js')
 
 app.use('/', staticRouter);
 app.use('/user', userRouter);
 app.use('/dashboard', restrictToLoggedinUserOnly, dasRouter);
+app.use('/profile', restrictToLoggedinUserOnly, profileRouter);
 app.use('/studio', studioRouter)
 app.use('/upload-chunk', uplodeRouter)
 

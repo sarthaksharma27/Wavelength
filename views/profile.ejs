@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account - Wavelength</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #ff4444;
+        }
+
+        .header p {
+            color: #9ca3af;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background-color: #2d2d2d;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #6b7280;
+        }
+
+        .delete-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .delete-btn:hover {
+            background-color: #b91c1c;
+        }
+
+        .delete-btn:disabled {
+            background-color: #374151;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .cancel-link {
+            display: block;
+            text-align: center;
+            color: #a855f7;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .cancel-link:hover {
+            color: #9333ea;
+        }
+
+        .warning {
+            background-color: #431407;
+            border: 1px solid #dc2626;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .warning-icon {
+            color: #dc2626;
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        .warning-text {
+            color: #fca5a5;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Delete Account</h1>
+            <p>This action cannot be undone. All your data will be permanently deleted.</p>
+        </div>
+
+        <div class="warning">
+            <div style="display: flex; align-items: flex-start;">
+                <span class="warning-icon">⚠️</span>
+                <div class="warning-text">
+                    <strong>Warning:</strong> Deleting your account will permanently remove all your data, including your profile, settings, and history. This action cannot be reversed.
+                </div>
+            </div>
+        </div>
+
+        <form action="profile/delete?_method=DELETE" method="POST" id="deleteForm">
+            <div class="form-group">
+                <label for="password">Enter your password to confirm</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Enter your password" 
+                    required
+                >
+            </div>
+
+            <button type="submit" class="delete-btn" id="deleteBtn">
+                Delete My Account
+            </button>
+        </form>
+
+        <a href="/dashboard" class="cancel-link">Cancel and go back</a>
+    </div>
+
+    <script>
+        const form = document.getElementById('deleteForm');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const passwordInput = document.getElementById('password');
+
+        // Enable/disable button based on password input
+        passwordInput.addEventListener('input', function() {
+            deleteBtn.disabled = this.value.length === 0;
+        });
+
+        // Confirm deletion on form submit
+        form.addEventListener('submit', function(e) {
+            const confirmed = confirm(
+                'Are you absolutely sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.'
+            );
+            
+            if (!confirmed) {
+                e.preventDefault();
+            }
+        });
+
+        // Initial state
+        deleteBtn.disabled = true;
+    </script>
+</body>
+</html>

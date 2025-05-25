@@ -108,53 +108,62 @@
         }
         
         .actions {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2.5rem;
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
         }
-        
+
+        .actions a {
+        text-decoration: none;
+        color: inherit;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        }
+
         .action-btn {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            border-radius: 16px;
-            background-color: var(--dark-card);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-            text-decoration: none;
-            color: var(--text);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        border-radius: 16px;
+        background-color: var(--dark-card);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
         }
-        
+
         .action-btn:hover {
-            transform: translateY(-5px);
-            background-color: rgba(144, 102, 204, 0.1);
+        transform: translateY(-5px);
+        background-color: rgba(144, 102, 204, 0.1);
         }
-        
+
         .action-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
-            background-color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background-color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
         }
-        
+
         .action-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
         }
-        
+
         .action-desc {
-            text-align: center;
-            color: var(--text-secondary);
+        text-align: center;
+        color: var(--text-secondary);
         }
+
         
         .recent-section {
             margin-bottom: 2rem;

@@ -114,6 +114,11 @@
             height: 100%;
             object-fit: cover;
         }
+
+        /* Added to mirror the local video feed */
+        #local-video {
+            transform: scaleX(-1);
+        }
         
         .participant-name {
             position: absolute;

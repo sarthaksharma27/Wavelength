@@ -62,6 +62,10 @@
             gap: 30px;
         }
 
+        #video-preview{
+            transform: scaleX(-1);
+        }
+
         .left-content {
             flex: 1;
             display: flex;

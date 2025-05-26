@@ -13,7 +13,11 @@ router.post("/", upload.single("file"), async (req, res) => {
   const chunk = req.file;
 
   if (!chunk || !roomId || !userType || !startTime || !endTime) {
-    return res.status(400).send("Missing required fields.");
+    // Check if response has already been sent
+    if (!res.headersSent) {
+        return res.status(400).send("Missing required fields.");
+    }
+    return; // Avoid further processing if headers sent
   }
 
   const chunkName = chunk.originalname;
@@ -22,44 +26,53 @@ router.post("/", upload.single("file"), async (req, res) => {
   const cloudinaryMetadataPath = `recordings/${roomId}/${userType}/${metadataFileName}`;
 
   try {
-    // ✅ Upload video chunk
-    const uploadResult = await cloudinary.uploader.upload_stream(
-      {
-        resource_type: "video",
-        public_id: cloudinaryChunkPath,
-        use_filename: true,
-        unique_filename: false,
-        overwrite: true,
-      },
-      (error, result) => {
-        if (error) {
-          console.error("Cloudinary upload error:", error);
-          return res.status(500).send("Chunk upload failed.");
-        }
-      }
-    );
+    // Promisify the upload_stream
+    const streamUpload = () => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "video",
+            public_id: cloudinaryChunkPath,
+            use_filename: true,
+            unique_filename: false,
+            overwrite: true,
+            timeout: 60000 // Increase timeout to 60 seconds
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Cloudinary upload stream error:", error);
+              return reject(error); // Reject the promise on error
+            }
+            resolve(result); // Resolve the promise on success
+          }
+        );
+        stream.end(chunk.buffer);
+      });
+    };
 
-    // Pipe chunk to Cloudinary stream
-    const stream = uploadResult;
-    stream.end(chunk.buffer);
+    // Await the stream upload
+    await streamUpload();
+    console.log(`✅ Chunk ${chunkName} uploaded to Cloudinary.`);
 
-    // ✅ Download or initialize metadata file
+    // Metadata handling (proceeds only if chunk upload was successful)
     let existingTxt = "";
     try {
-      const metadataUrl = cloudinary.url(cloudinaryMetadataPath, { resource_type: "raw" });
+      // It's better to fetch metadata only if needed, or handle its absence gracefully
+      const metadataUrl = cloudinary.url(cloudinaryMetadataPath, { resource_type: "raw", secure: true });
       const response = await fetch(metadataUrl);
       if (response.ok) {
         existingTxt = await response.text();
+      } else if (response.status !== 404) {
+        // Log error if it's not a 'file not found' error
+        console.warn(`Metadata fetch issue for ${cloudinaryMetadataPath}: ${response.status} ${response.statusText}`);
       }
     } catch (err) {
-      console.log("No existing metadata file, will create new.");
+      // This catch is for network errors during fetch, or if the file truly doesn't exist and fetch throws
+      console.log(`No existing metadata file for ${cloudinaryMetadataPath}, or error fetching: ${err.message}`);
     }
 
-    // ✅ Append new entry
     const updatedTxt = existingTxt + `${chunkName},${startTime},${endTime}\n`;
-
-    // ✅ Save metadata file to tmp and upload to Cloudinary
-    const tmpPath = path.join(os.tmpdir(), `${userType}_${roomId}.txt`);
+    const tmpPath = path.join(os.tmpdir(), `${userType}_${roomId}_${Date.now()}.txt`);
     await fs.writeFile(tmpPath, updatedTxt);
 
     await cloudinary.uploader.upload(tmpPath, {
@@ -67,12 +80,24 @@ router.post("/", upload.single("file"), async (req, res) => {
       public_id: cloudinaryMetadataPath,
       overwrite: true,
     });
+    await fs.unlink(tmpPath); // Clean up temp file
 
     console.log(`✅ Uploaded chunk and updated metadata for: ${chunkName}`);
-    return res.sendStatus(200);
+    if (!res.headersSent) {
+        return res.status(200).send(`Successfully uploaded ${chunkName}`);
+    }
+
   } catch (err) {
-    console.error("Upload error:", err);
-    return res.status(500).send("Upload failed.");
+    console.error(`Upload process error for ${chunkName}:`, err);
+    if (!res.headersSent) {
+        // Check the type of error to provide a more specific message if it's a Cloudinary timeout
+        if (err.name === 'TimeoutError' || (err.http_code === 499)) {
+            return res.status(504).send("Chunk upload to Cloudinary timed out.");
+        } else if (err.message && err.message.includes("ESOCKETTIMEDOUT")){
+             return res.status(504).send("Chunk upload to Cloudinary timed out (socket).");
+        }
+        return res.status(500).send("Upload failed due to a server error.");
+    }
   }
 });
 

@@ -46,43 +46,57 @@ function ffmpeg(command) {
 async function getChunksFromCloudinary(roomId, userType) {
   console.log(`[getChunks] Getting chunks for ${userType} in room ${roomId}`);
   
-  try {
-    // Simple approach: just get all video resources in the directory
-    const resources = await cloudinary.api.resources({
-      type: 'upload',
-      prefix: `recordings/${roomId}/${userType}/`,
-      resource_type: 'video',
-      max_results: 500
-    });
-    
-    console.log(`[getChunks] Found ${resources.resources.length} video chunks`);
-    
-    if (resources.resources.length === 0) {
-      console.log(`[getChunks] No video chunks found for ${userType}`);
-      return [];
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY_MS = 7000; // 7 seconds
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log(`[getChunks] Attempt ${attempt}/${MAX_RETRIES} for ${userType} in room ${roomId}`);
+      const resources = await cloudinary.api.resources({
+        type: 'upload',
+        prefix: `recordings/${roomId}/${userType}/`,
+        resource_type: 'video',
+        max_results: 500
+      });
+      
+      console.log(`[getChunks] Found ${resources.resources.length} video chunks on attempt ${attempt}`);
+      
+      if (resources.resources.length > 0) {
+        // Extract filenames and sort them
+        const chunks = resources.resources.map(resource => {
+          const parts = resource.public_id.split('/');
+          return {
+            filename: parts[parts.length - 1],
+            url: resource.secure_url,
+            public_id: resource.public_id
+          };
+        }).sort((a, b) => {
+          const numA = parseInt(a.filename.match(/\d+/)?.[0] || '0');
+          const numB = parseInt(b.filename.match(/\d+/)?.[0] || '0');
+          return numA - numB;
+        });
+        console.log(`[getChunks] Successfully fetched and sorted ${chunks.length} chunks for ${userType}.`);
+        return chunks;
+      }
+
+      if (attempt < MAX_RETRIES) {
+        console.log(`[getChunks] No chunks found for ${userType} on attempt ${attempt}. Retrying in ${RETRY_DELAY_MS / 1000}s...`);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+      } else {
+        console.log(`[getChunks] No video chunks found for ${userType} after ${MAX_RETRIES} attempts.`);
+        return [];
+      }
+    } catch (error) {
+      console.error(`[getChunks] Error retrieving chunks for ${userType} on attempt ${attempt}: ${error.message}`);
+      if (attempt >= MAX_RETRIES) {
+        console.error(`[getChunks] Failed to retrieve chunks for ${userType} after ${MAX_RETRIES} attempts.`);
+        throw error; // Re-throw error after final attempt
+      }
+      // Optionally wait before retrying on error too, or handle specific errors differently
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS)); 
     }
-    
-    // Extract filenames and sort them by name (which should maintain order)
-    const chunks = resources.resources.map(resource => {
-      const parts = resource.public_id.split('/');
-      return {
-        filename: parts[parts.length - 1],
-        url: resource.secure_url,
-        public_id: resource.public_id
-      };
-    }).sort((a, b) => {
-      // Sort by chunk number if possible
-      const numA = parseInt(a.filename.match(/\d+/)?.[0] || '0');
-      const numB = parseInt(b.filename.match(/\d+/)?.[0] || '0');
-      return numA - numB;
-    });
-    
-    console.log(`[getChunks] Processed chunks: ${chunks.map(c => c.filename).join(', ')}`);
-    return chunks;
-  } catch (err) {
-    console.error(`[getChunks] Error retrieving chunks: ${err.message}`);
-    return [];
   }
+  return []; // Should be unreachable if loop logic is correct, but as a fallback
 }
 
 async function concatChunks(roomId, userType, outputPath) {

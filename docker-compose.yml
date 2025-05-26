@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Main application service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"  # Expose app port
+    environment:
+      - REDIS_HOST=redis  # Point to Redis container
+      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    networks:
+      - app-network
+    depends_on:
+      - redis
+      - worker
+
+  # Video processing worker service
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - REDIS_HOST=redis  # Point to Redis container
+      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    networks:
+      - app-network
+    depends_on:
+      - redis
+
+  # Redis service for job queue
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"  # Expose Redis port
+    volumes:
+      - redis-data:/data  # Persist Redis data
+    networks:
+      - app-network
+
+networks:
+  app-network:    # Define a custom network for services
+    driver: bridge
+
+volumes:
+  redis-data:     # Persist Redis data across restarts

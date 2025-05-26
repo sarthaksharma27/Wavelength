@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const cookieParser = require('cookie-parser');
 const prisma = require("./prisma/client.js");
-const { startMerging } = require('./merge.js');
+const videoProcessingQueue = require('./config/queue');
 require('dotenv').config();
 const methodOverride = require('method-override');
 
@@ -108,15 +108,31 @@ io.on('connection', socket => {
     io.to(roomId).emit("start-recording", { startTime });
   });
 
-  socket.on("recording-stopped", (roomId) => {
-  console.log(`[recording-stopped] triggered for room: ${roomId}`);
-  io.to(roomId).emit("stop-rec");
+  socket.on("recording-stopped", async (roomId) => {
+    console.log(`[recording-stopped] triggered for room: ${roomId}`);
+    io.to(roomId).emit("stop-rec");
 
-  setTimeout(() => {
-    console.log("Calling startMerging...");
-    startMerging(roomId);
-  }, 5000);
-});
+    // Add job to queue after 5 seconds
+    setTimeout(async () => {
+      try {
+        console.log(`[Queue] Adding video processing job for room: ${roomId}`);
+        const job = await videoProcessingQueue.add({ roomId });
+        console.log(`[Queue] Job ${job.id} added for room: ${roomId}`);
+
+        // Listen for job completion
+        job.finished().then((result) => {
+          console.log(`[Queue] Job ${job.id} finished for room: ${roomId}`);
+          io.to(roomId).emit('video-processing-complete', result);
+        }).catch((error) => {
+          console.error(`[Queue] Job ${job.id} failed for room: ${roomId}:`, error);
+          io.to(roomId).emit('video-processing-error', { error: error.message });
+        });
+      } catch (error) {
+        console.error(`[Queue] Error adding job for room: ${roomId}:`, error);
+        io.to(roomId).emit('video-processing-error', { error: error.message });
+      }
+    }, 5000);
+  });
 
 
 

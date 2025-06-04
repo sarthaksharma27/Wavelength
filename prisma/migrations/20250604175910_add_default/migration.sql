@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "roomIds" SET DEFAULT ARRAY[]::TEXT[];

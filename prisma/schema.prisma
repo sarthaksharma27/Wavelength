@@ -13,6 +13,7 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  roomIds String[] @default([])
 }
 
 model GuestToken {

@@ -125,28 +125,7 @@
             window.location.href = "/profile/logout";
         });
         
-        // Toggle empty state for demo purpose
-        const recordingsContainer = document.getElementById('recordings-container');
-        const emptyState = document.getElementById('empty-state');
         
-        function toggleEmptyState() {
-            if (recordingsContainer.style.display !== 'none') {
-                recordingsContainer.style.display = 'none';
-                emptyState.style.display = 'block';
-            } else {
-                recordingsContainer.style.display = 'grid';
-                emptyState.style.display = 'none';
-            }
-        }
-        
-        // Sample functionality for recordings
-        const recordingCards = document.querySelectorAll('.recording-card');
-        recordingCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const title = card.querySelector('.recording-title').textContent;
-                console.log(`Playing: ${title}`);
-            });
-        });
     </script>
 </body>
 </html>

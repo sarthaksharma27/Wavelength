@@ -7,7 +7,7 @@ const videoProcessingQueue = new Queue('video-processing', {
     port: process.env.REDIS_PORT || 6379,
   },
   defaultJobOptions: {
-    attempts: 3, // Retry failed jobs up to 3 times
+    attempts: 1, 
     backoff: {
       type: 'exponential',
       delay: 1000, // Initial delay of 1 second

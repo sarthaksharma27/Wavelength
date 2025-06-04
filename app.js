@@ -111,22 +111,13 @@ io.on('connection', socket => {
   socket.on("recording-stopped", async (roomId) => {
     console.log(`[recording-stopped] triggered for room: ${roomId}`);
     io.to(roomId).emit("stop-rec");
-
     // Add job to queue after 5 seconds
     setTimeout(async () => {
       try {
         console.log(`[Queue] Adding video processing job for room: ${roomId}`);
         const job = await videoProcessingQueue.add({ roomId });
         console.log(`[Queue] Job ${job.id} added for room: ${roomId}`);
-
-        // Listen for job completion
-        job.finished().then((result) => {
-          console.log(`[Queue] Job ${job.id} finished for room: ${roomId}`);
-          io.to(roomId).emit('video-processing-complete', result);
-        }).catch((error) => {
-          console.error(`[Queue] Job ${job.id} failed for room: ${roomId}:`, error);
-          io.to(roomId).emit('video-processing-error', { error: error.message });
-        });
+        
       } catch (error) {
         console.error(`[Queue] Error adding job for room: ${roomId}:`, error);
         io.to(roomId).emit('video-processing-error', { error: error.message });

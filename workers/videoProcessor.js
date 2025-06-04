@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 const videoProcessingQueue = require('../config/queue');
 const { startMerging } = require('../merge');
 
@@ -7,7 +7,6 @@ videoProcessingQueue.process(async (job) => {
   console.log(`[Worker] Starting video processing for room: ${job.data.roomId}`);
   
   try {
-    // Process the video
     const result = await startMerging(job.data.roomId);
     
     // Update job progress

@@ -156,6 +156,21 @@ function leaveCall() {
   alert('You have left the studio.');
 }
 
+const titleInput = document.getElementById('recording-title-input');
+  // const roomId = "<%= roomId %>"; // Injected by server
+
+  titleInput.addEventListener('blur', async () => {
+    const title = titleInput.value || 'Untitled Recording';
+
+    await fetch('/studio/update-title', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ roomId, title })
+    });
+  });
+
 // ==== Invite Button ====
 
 inviteBtn.addEventListener('click', async () => {

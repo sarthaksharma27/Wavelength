@@ -13,8 +13,9 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
-  roomIds String[] @default([])
+  roomData  Json?    @default("[]")  // Array of { roomId: string, title: string }
 }
+
 
 model GuestToken {
   id        Int      @id @default(autoincrement())

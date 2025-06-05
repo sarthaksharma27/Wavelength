@@ -22,9 +22,19 @@
         </div>
         <% const safeUser = typeof user !== 'undefined' && user ? user : {}; %>
         <div class="room-name">
-           <%= safeUser.username || 'Guest' %> Studio
-        <span class="recording-title">Untitled Recording</span>
+        <%= safeUser.username || 'Guest' %> Studio
+        <input 
+            id="recording-title-input" 
+            type="text" 
+            placeholder="Enter recording title" 
+            value="Untitled Recording" 
+            onfocus="this.style.color='white'; this.style.borderBottom='1px solid #555';" 
+            onblur="this.style.color='#bbb'; this.style.borderBottom='none';" 
+            style="background: transparent; border: none; color: #bbb; font-size: 16px; font-weight: normal; padding: 0; margin-left: 10px; outline: none; width: auto; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.2s ease;"
+        />
         </div>
+
+
 
         <div id="uploadingStatus" class="stream-button" style="display:none; padding: 10px; color: white; background: #222;">
             <p id="uploadingText">Uploading to cloud…</p>
@@ -125,7 +135,6 @@
         </div>
     </div>
     </div>
-
 <script src="/socket.io/socket.io.js"></script>
 <script>
     window.roomId = "<%= roomId %>";

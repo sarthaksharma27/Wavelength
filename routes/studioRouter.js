@@ -6,21 +6,27 @@ const restrictToLoggedinUserOnly = require('../middleware/user.js');
 
 router.get('/', restrictToLoggedinUserOnly, async (req, res) => {
   const roomId = uuidv4();
+  const defaultTitle = "Untitled Recording";
 
   try {
     if (req.user && req.user.id) {
-      const updatedUser = await prisma.user.update({
+      // Fetch existing roomData (or default to empty array)
+      const user = await prisma.user.findUnique({
+        where: { id: req.user.id },
+        select: { roomData: true },
+      });
+
+      const updatedRoomData = [...(user.roomData || []), { roomId, title: defaultTitle }];
+
+      await prisma.user.update({
         where: { id: req.user.id },
         data: {
-          roomIds: {
-            push: roomId,
-          },
+          roomData: updatedRoomData,
         },
       });
-      // console.log('Updated user:', updatedUser);
     }
   } catch (error) {
-    console.error('Error updating user with roomId:', error);
+    console.error('Error saving roomData:', error);
   }
 
   res.redirect(`/studio/${roomId}`);
@@ -39,6 +45,34 @@ router.get('/:roomId', restrictToLoggedinUserOnly, async (req, res) => {
     res.render('studio/studio', { roomId: req.params.roomId });
   }
   
+});
+
+// routes/rooms.js
+router.post('/update-title', restrictToLoggedinUserOnly, async (req, res) => {
+  const { roomId, title } = req.body;
+  if (!roomId || !title) return res.status(400).json({ error: 'roomId and title required' });
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    const roomData = user.roomData || [];
+
+    const index = roomData.findIndex(r => r.roomId === roomId);
+    if (index >= 0) {
+      roomData[index].title = title;
+    } else {
+      roomData.push({ roomId, title });
+    }
+
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { roomData },
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 module.exports = router;

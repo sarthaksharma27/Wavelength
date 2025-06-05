@@ -108,14 +108,16 @@ io.on('connection', socket => {
     io.to(roomId).emit("start-recording", { startTime });
   });
 
-  socket.on("recording-stopped", async (roomId) => {
+  socket.on("recording-stopped", async ({ roomId, userId }) => {
     console.log(`[recording-stopped] triggered for room: ${roomId}`);
     io.to(roomId).emit("stop-rec");
     // Add job to queue after 5 seconds
     setTimeout(async () => {
       try {
         console.log(`[Queue] Adding video processing job for room: ${roomId}`);
-        const job = await videoProcessingQueue.add({ roomId });
+        console.log("this is room and user Id", roomId, userId);
+        
+        const job = await videoProcessingQueue.add({ roomId, userId });
         console.log(`[Queue] Job ${job.id} added for room: ${roomId}`);
         
       } catch (error) {

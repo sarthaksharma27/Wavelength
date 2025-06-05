@@ -8,13 +8,26 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  email     String   @unique
+  id        String     @id @default(cuid())
+  username  String     @unique
+  email     String     @unique
   password  String
-  createdAt DateTime @default(now())
-  roomData  Json?    @default("[]")  // Array of { roomId: string, title: string }
+  createdAt DateTime   @default(now())
+
+  recordings Recording[]
 }
+
+model Recording {
+  id        String   @id @default(cuid())
+  userId    String
+  roomId    String   @unique
+  title     String   @default("Untitled Recording")
+  videoUrl  String?  // Only set when merged video is ready
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
 
 
 model GuestToken {

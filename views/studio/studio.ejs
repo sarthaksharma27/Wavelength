@@ -138,6 +138,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     window.roomId = "<%= roomId %>";
+    window.userId = "<%= safeUser.id || '' %>";
 </script>
 <script src="/js/studio.js"></script>
 </body>

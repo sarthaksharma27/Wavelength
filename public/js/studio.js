@@ -18,6 +18,7 @@ const config = {
 
 const socket = io();
 const roomId = window.roomId;
+const userId = window.userId;
 
 async function startLocalStream() {
   try {
@@ -385,8 +386,9 @@ function stopLocalRecording() {
   isHostRecording = false;
   recordBtnText.textContent = 'Record';
   
-  // Emit stop signal to other participants
-  socket.emit("recording-stopped", roomId);
+  // Emit stop signal to other participants 
+ socket.emit("recording-stopped", { roomId, userId }); 
+
 
   // Clean up current recording
   cleanupRecording();

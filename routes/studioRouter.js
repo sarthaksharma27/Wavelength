@@ -4,73 +4,74 @@ const { v4: uuidv4 } = require('uuid');
 const prisma = require("../prisma/client.js");
 const restrictToLoggedinUserOnly = require('../middleware/user.js');
 
+// Route: Create new room and recording entry
 router.get('/', restrictToLoggedinUserOnly, async (req, res) => {
   const roomId = uuidv4();
   const defaultTitle = "Untitled Recording";
 
   try {
     if (req.user && req.user.id) {
-      // Fetch existing roomData (or default to empty array)
-      const user = await prisma.user.findUnique({
-        where: { id: req.user.id },
-        select: { roomData: true },
-      });
-
-      const updatedRoomData = [...(user.roomData || []), { roomId, title: defaultTitle }];
-
-      await prisma.user.update({
-        where: { id: req.user.id },
+      await prisma.recording.create({
         data: {
-          roomData: updatedRoomData,
+          roomId,
+          title: defaultTitle,
+          userId: req.user.id,
         },
       });
     }
-  } catch (error) {
-    console.error('Error saving roomData:', error);
-  }
 
-  res.redirect(`/studio/${roomId}`);
+    res.redirect(`/studio/${roomId}`);
+  } catch (error) {
+    console.error('Error creating recording:', error);
+    res.status(500).send('Internal server error');
+  }
 });
 
+// Route: Render studio for specific room
 router.get('/:roomId', restrictToLoggedinUserOnly, async (req, res) => {
   const token = req.cookies.uid;
-  if(token) { // logged in user
-    const userId = req.user.id;
 
+  if (token) {
+    const userId = req.user.id;
     const user = await prisma.user.findUnique({
-        where: { id: userId },
+      where: { id: userId },
     });
-   res.render('studio/studio', { roomId: req.params.roomId, user });
-  } else { // guest
+
+    res.render('studio/studio', { roomId: req.params.roomId, user });
+  } else {
     res.render('studio/studio', { roomId: req.params.roomId });
   }
-  
 });
 
-// routes/rooms.js
+// Route: Update recording title (AJAX call from frontend)
 router.post('/update-title', restrictToLoggedinUserOnly, async (req, res) => {
   const { roomId, title } = req.body;
-  if (!roomId || !title) return res.status(400).json({ error: 'roomId and title required' });
+
+  if (!roomId || !title) {
+    return res.status(400).json({ error: 'roomId and title are required' });
+  }
 
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    const roomData = user.roomData || [];
+    // Make sure user owns this room
+    const recording = await prisma.recording.findFirst({
+      where: {
+        roomId,
+        userId: req.user.id,
+      },
+    });
 
-    const index = roomData.findIndex(r => r.roomId === roomId);
-    if (index >= 0) {
-      roomData[index].title = title;
-    } else {
-      roomData.push({ roomId, title });
+    if (!recording) {
+      return res.status(404).json({ error: 'Recording not found or not owned by user' });
     }
 
-    await prisma.user.update({
-      where: { id: req.user.id },
-      data: { roomData },
+    await prisma.recording.update({
+      where: { id: recording.id },
+      data: { title },
     });
 
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error('Error updating title:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

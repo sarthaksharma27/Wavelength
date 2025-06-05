@@ -29,4 +29,29 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get('/:roomId', async (req, res) => {
+  const { roomId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const recording = await prisma.recording.findFirst({
+      where: {
+        roomId,
+        userId,
+        videoUrl: { not: null },
+      },
+    });
+
+    if (!recording) {
+      return res.status(404).render('404', { message: 'Recording not found or not processed yet.' });
+    }
+
+    res.render('dashboard/recordingDetails', { recording });
+  } catch (error) {
+    console.error('Error fetching recording by roomId:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+
 module.exports = router;

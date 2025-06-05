@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= recording.title || "Untitled Recording" %></title>
+    <style>
+        :root {
+            --primary: #9066cc;
+            --primary-dark: #8055bb;
+            --dark-bg: #121212;
+            --dark-card: #1e1e1e;
+            --text: #ffffff;
+            --text-secondary: #b3b3b3;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .recording-header {
+            margin-bottom: 2rem;
+        }
+
+        .recording-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), #b380d9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .recording-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .video-section {
+            background: var(--dark-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            width: 100%;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .participant-container {
+            background: var(--dark-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .participant-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(144, 102, 204, 0.05);
+        }
+
+        .participant-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .participant-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s ease;
+        }
+
+        .participant-item:last-child {
+            border-bottom: none;
+        }
+
+        .participant-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            margin-right: 1rem;
+            position: relative;
+        }
+
+        .participant-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .participant-name {
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .participant-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+        }
+
+        .status-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .participant-details {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-right: 1rem;
+        }
+
+        .resolution {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .navbar {
+                padding: 1rem;
+            }
+
+            .recording-title {
+                font-size: 2rem;
+            }
+
+            .recording-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .participant-item {
+                padding: 0.75rem 1rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Dashboard
+        </a>
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4V20M7 6v12M17 8v8M3 10v4M21 10v4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            Wavelength
+        </a>
+    </nav>
+
+    <div class="container">
+        <div class="recording-header">
+            <h1 class="recording-title"><%= recording.title || "Untitled Recording" %></h1>
+            <div class="recording-meta">
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span>Recorded <%= new Date(recording.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                </div>
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span>3 Participants</span>
+                </div>
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                        <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                        <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span><%= new Date(recording.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="video-section">
+                <div class="video-wrapper">
+                    <video controls width="100%">
+                        <source src="<%= recording.videoUrl %>" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <div class="participant-container">
+                <div class="participant-header">
+                    <h3>Recording Participants</h3>
+                    <p>All participants who were present during this recording session</p>
+                </div>
+                
+                <div class="participant-item">
+                    <div class="avatar">
+                        👥
+                    </div>
+                    <div class="participant-info">
+                        <div class="participant-name">All participants</div>
+                        <div class="participant-status">
+                            <div class="status-indicator"></div>
+                            <span class="status-text">Recorded successfully</span>
+                        </div>
+                    </div>
+                    <div class="participant-details">
+                        <span class="resolution">1080p</span>
+                    </div>
+                    <div class="controls">
+                        <button class="control-btn" onclick="downloadVideo('all')">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 12l-4-4h2.5V4h3v4H12l-4 4z" fill="currentColor"/>
+                                <path d="M2 14h12v1H2z" fill="currentColor"/>
+                            </svg>
+                            Download
+                        </button>
+                    </div>
+                </div>
+
+                <div class="participant-item">
+                    <div class="avatar">G</div>
+                    <div class="participant-info">
+                        <div class="participant-name">Guest</div>
+                        <div class="participant-status">
+                            <div class="status-indicator"></div>
+                            <span class="status-text">Recorded successfully</span>
+                        </div>
+                    </div>
+                    <div class="participant-details">
+                        <span class="resolution">720p</span>
+                    </div>
+                    <div class="controls">
+                        <button class="control-btn" onclick="downloadVideo('guest')">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 12l-4-4h2.5V4h3v4H12l-4 4z" fill="currentColor"/>
+                                <path d="M2 14h12v1H2z" fill="currentColor"/>
+                            </svg>
+                            Download
+                        </button>
+                    </div>
+                </div>
+
+                <div class="participant-item">
+                    <div class="avatar">S</div>
+                    <div class="participant-info">
+                        <div class="participant-name">Sarthak Sharma</div>
+                        <div class="participant-status">
+                            <div class="status-indicator"></div>
+                            <span class="status-text">Recorded successfully</span>
+                        </div>
+                    </div>
+                    <div class="participant-details">
+                        <span class="resolution">720p</span>
+                    </div>
+                    <div class="controls">
+                        <button class="control-btn" onclick="downloadVideo('sarthak')">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 12l-4-4h2.5V4h3v4H12l-4 4z" fill="currentColor"/>
+                                <path d="M2 14h12v1H2z" fill="currentColor"/>
+                            </svg>
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadVideo(participant) {
+            console.log(`Downloading video for: ${participant}`);
+            // You would implement actual video download functionality here
+            // This could trigger different quality downloads based on participant
+        }
+    </script>
+</body>
+</html>

@@ -81,22 +81,34 @@
             </div>
             
             <div class="recordings-grid" id="recordings-container">
-                <div class="recording-card">
-                    <div class="recording-thumbnail">
+            <% if (recordings.length === 0) { %>
+                <p>No recordings yet. Start one now!</p>
+                <% } else { %>
+                <% recordings.forEach(recording => { %>
+                    <div class="recording-card">
+                    <a href="/dashboard/<%= recording.roomId %>">
+                        <div class="recording-thumbnail">
+                        <video width="100%" muted>
+                            <source src="<%= recording.videoUrl %>" type="video/mp4">
+                        </video>
                         <div class="play-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 3l14 9-14 9V3z" fill="white"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M5 3l14 9-14 9V3z" fill="white" />
                             </svg>
                         </div>
-                    </div>
-                    <div class="recording-info">
-                        <h3 class="recording-title">Interview with John Smith</h3>
-                        <div class="recording-meta">
-                            <span>32:15</span>
-                            <span>May 12, 2025</span>
                         </div>
+                        <div class="recording-info">
+                        <h3 class="recording-title"><%= recording.title || "Untitled Recording" %></h3>
+                        <div class="recording-meta">
+                            <span><%= new Date(recording.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span>
+                            <span><%= new Date(recording.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
+                        </div>
+                        </div>
+                    </a>
                     </div>
-                </div>
+                <% }) %>
+            <% } %>
+
             </div>    
         </section>
     </main>

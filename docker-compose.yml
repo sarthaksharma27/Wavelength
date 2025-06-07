@@ -1,56 +1,49 @@
-version: '3.8'
-
 services:
-  # Main application service
   app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "4000:4000"  # Expose app port
-    environment:
-      - REDIS_HOST=redis  # Point to Redis container
-      - REDIS_PORT=6379
-      - NODE_ENV=production
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-    networks:
-      - app-network
+      - "4000:4000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
     depends_on:
       - redis
-      - worker
+      - postgres
 
-  # Video processing worker service
   worker:
     build:
       context: .
-      dockerfile: Dockerfile.worker
-    environment:
-      - REDIS_HOST=redis  # Point to Redis container
-      - REDIS_PORT=6379
-      - NODE_ENV=production
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-    networks:
-      - app-network
+      dockerfile: Dockerfile
+    command: ["node", "workers/videoProcessor.js"]
+    env_file:
+      - .env
+    volumes:
+      - .:/app
     depends_on:
       - redis
+      - postgres
 
-  # Redis service for job queue
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"  # Expose Redis port
-    volumes:
-      - redis-data:/data  # Persist Redis data
-    networks:
-      - app-network
+      - "6379:6379"
+    # volumes:
+    #   - redis_data:/data
 
-networks:
-  app-network:    # Define a custom network for services
-    driver: bridge
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: Wavelength
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres552
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  redis-data:     # Persist Redis data across restarts
+  # redis_data:
+  postgres_data:

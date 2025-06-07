@@ -1,20 +1,27 @@
-# Use Node.js base image
 FROM node:18
 
-# Create app directory
-WORKDIR /usr/src/app
+# Install dependencies for building FFmpeg
+RUN apt-get update && apt-get install -y \
+    wget \
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
+# Download and install static FFmpeg build with all codecs
+RUN wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz \
+    && tar -xf ffmpeg-release-amd64-static.tar.xz \
+    && mv ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ \
+    && mv ffmpeg-*-amd64-static/ffprobe /usr/local/bin/ \
+    && rm -rf ffmpeg-* \
+    && chmod +x /usr/local/bin/ffmpeg \
+    && chmod +x /usr/local/bin/ffprobe
+
+WORKDIR /app
+
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy app source
 COPY . .
 
-# Expose port
 EXPOSE 4000
 
-# Start the app
 CMD ["node", "app.js"]

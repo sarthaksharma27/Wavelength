@@ -1,21 +1,19 @@
 {
-  "name": "riverside-webrtc",
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "wavelength",
   "version": "1.0.0",
   "description": "",
-  "homepage": "https://github.com/sarthaksharma27/Riverside-webrtc#readme",
-  "bugs": {
-    "url": "https://github.com/sarthaksharma27/Riverside-webrtc/issues"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sarthaksharma27/Riverside-webrtc.git"
+    "url": "git+https://github.com/sarthaksharma27/Wavelength.git"
   },
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",

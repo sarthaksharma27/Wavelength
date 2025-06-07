@@ -27,7 +27,7 @@ function ffmpeg(command) {
     // Use maxBuffer option to handle larger outputs
     return execSync(command, { 
       stdio: 'pipe',
-      maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+      maxBuffer: 100 * 1024 * 1024 // 100MB buffer
     });
   } catch (error) {
     console.error('----------------------------------------');
@@ -166,8 +166,11 @@ function generateBlackVideo(outputPath, duration = 10, resolution = "640x360") {
 }
 
 function mergeSideBySide(roomId, hostFile, guestFile, outputPath) {
-  ffmpeg(`ffmpeg -y -i "${hostFile}" -i "${guestFile}" -filter_complex "[0:v]scale=640:360[hv];[1:v]scale=640:360[gv];[hv][gv]hstack=inputs=2[v];[0:a][1:a]amix=inputs=2[a]" -map "[v]" -map "[a]" -c:v libx264 -c:a aac "${outputPath}"`);
+  console.log('[mergeSideBySide] Starting merge process');
+  ffmpeg(`ffmpeg -y -i "${hostFile}" -i "${guestFile}" -filter_complex "[0:v]scale=960:1080[hv];[1:v]scale=960:1080[gv];[hv][gv]hstack=inputs=2[v];[0:a][1:a]amix=inputs=2[a]" -map "[v]" -map "[a]" -c:v libx264 -c:a aac "${outputPath}"`);
+  console.log('[mergeSideBySide] Finished merge process');
 }
+
 
 async function startMerging(roomId) {
   console.log(`[startMerging] Starting for room: ${roomId}`);
@@ -209,8 +212,14 @@ async function startMerging(roomId) {
   }
 
   console.log(`[startMerging] Merging videos side by side...`);
+  try {
   mergeSideBySide(roomId, hostPath, guestInput, finalOutput);
   console.log(`[startMerging] Videos merged successfully at: ${finalOutput}`);
+  } catch (error) {
+    console.error('[startMerging] Error during mergeSideBySide:', error);
+    return;
+  }
+
   
   // Upload final video to Cloudinary
   try {

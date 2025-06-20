@@ -111,7 +111,6 @@ io.on('connection', socket => {
   socket.on("recording-stopped", async ({ roomId, userId }) => {
     console.log(`[recording-stopped] triggered for room: ${roomId}`);
     io.to(roomId).emit("stop-rec");
-    // Add job to queue after 5 seconds
     setTimeout(async () => {
       try {
         console.log(`[Queue] Adding video processing job for room: ${roomId}`);
@@ -124,7 +123,7 @@ io.on('connection', socket => {
         console.error(`[Queue] Error adding job for room: ${roomId}:`, error);
         io.to(roomId).emit('video-processing-error', { error: error.message });
       }
-    }, 5000);
+    }, 10000);
   });
 
 

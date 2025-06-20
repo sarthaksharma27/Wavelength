@@ -23,11 +23,21 @@ const userId = window.userId;
 async function startLocalStream() {
   try {
     localStream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 1280, height: 720, frameRate: 30 },
+      video: {
+        width: { max: 9999 },
+        height: { max: 9999 },
+        frameRate: { ideal: 30 }
+      },
       audio: true
     });
+
     localVideo.srcObject = localStream;
-    console.log('🎥 Local stream started.');
+
+    // Log actual resolution received
+    const track = localStream.getVideoTracks()[0];
+    const settings = track.getSettings();
+    console.log(`🎥 Local stream started: ${settings.width}x${settings.height} @ ${settings.frameRate}fps`);
+    
   } catch (err) {
     console.error('Failed to get user media:', err);
     alert('Could not access camera or microphone.');
@@ -158,8 +168,6 @@ function leaveCall() {
 }
 
 const titleInput = document.getElementById('recording-title-input');
-  // const roomId = "<%= roomId %>"; // Injected by server
-
   titleInput.addEventListener('blur', async () => {
     const title = titleInput.value || 'Untitled Recording';
 
@@ -194,6 +202,8 @@ inviteBtn.addEventListener('click', async () => {
     alert("Something went wrong while generating invite link.");
   }
 });
+
+/////////////////////// Recording logic starte from here ///////////////////////////////////////
 
 const recordBtn = document.getElementById('record-btn');
 const recordBtnText = recordBtn.querySelector('.control-button-text');
@@ -448,13 +458,6 @@ socket.on("stop-rec", () => {
     }
   }, 500);
 });
-
-
-
-
-
-
-
 
 
 // ==== Init on Load ====

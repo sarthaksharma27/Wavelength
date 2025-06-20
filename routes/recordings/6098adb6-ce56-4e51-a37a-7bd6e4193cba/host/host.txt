@@ -1,5 +1,0 @@
-chunk-1.webm,0,2748
-chunk-2.webm,2748,4687
-chunk-3.webm,4687,7452
-chunk-4.webm,7452,9386
-chunk-5.webm,9386,12141

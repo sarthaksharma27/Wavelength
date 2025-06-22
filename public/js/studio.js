@@ -12,16 +12,21 @@ let camEnabled = true;
 let peerConnection;
 let isInitiator = false;
 
-const config = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    {
-      urls: 'turn:20.115.88.117:3478',
-      username: 'turnuser',
-      credential: 'securepassword'
-    }
-  ]
-};
+async function getTurnConfig() {
+  const response = await fetch('/api/turn-credentials');
+  const data = await response.json();
+
+  return {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      {
+        urls: data.urls,
+        username: data.username,
+        credential: data.credential
+      }
+    ]
+  };
+}
 
 const socket = io();
 const roomId = window.roomId;
@@ -51,7 +56,9 @@ async function startLocalStream() {
   }
 }
 
-function createPeerConnection() {
+async function createPeerConnection() {
+  const config = await getTurnConfig();
+  console.log('📡 Using ICE server config for RTCPeerConnection:', config);
   peerConnection = new RTCPeerConnection(config);
 
   peerConnection.ontrack = (event) => {
@@ -77,6 +84,7 @@ function createPeerConnection() {
 
   console.log('✅ PeerConnection created and local tracks added.');
 }
+
 
 async function createAndSendOffer() {
   try {

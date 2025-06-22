@@ -47,6 +47,15 @@ app.get('/pre', restrictToLoggedinUserOnly, async (req, res) => {
   res.render("studio/preJoin", {user});
 });
 
+app.get('/api/turn-credentials', (req, res) => {
+  const response = {
+    urls: `turn:${process.env.TURN_SERVER_URL}:3478`,
+    username: process.env.TURN_SERVER_USERNAME,
+    credential: process.env.TURN_SERVER_CREDENTIAL
+  };
+  res.json(response);
+});
+
 app.post('/generatetoken', async (req, res) => {
   const { roomId } = req.body;
 

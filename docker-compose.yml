@@ -7,9 +7,9 @@ services:
       - "4000:4000"
     env_file:
       - .env
-    # volumes:                # Mount source for live code changes without rebuild
-    #   - .:/app
-    #   - /app/node_modules
+    volumes:                # Mount source for live code changes without rebuild
+      - .:/app
+      - /app/node_modules
     depends_on:
       - redis
       - postgres
@@ -21,9 +21,9 @@ services:
     command: ["node", "workers/videoProcessor.js"]
     env_file:
       - .env
-    # volumes:               # Mount source for live code changes without rebuild
-    #   - .:/app
-    #   - /app/node_modules 
+    volumes:               # Mount source for live code changes without rebuild
+      - .:/app
+      - /app/node_modules 
     depends_on:
       - redis
       - postgres

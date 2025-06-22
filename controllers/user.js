@@ -26,10 +26,8 @@ async function handleUserLogin(req, res) {
   });
 
   if (!user) {
-  console.log("No user found, redirecting to /signup");
-  return res.redirect("/signup");
- }
-
+    return res.redirect("/signup");
+  }
 
   const token = setUser(user);
   res.cookie("uid", token);

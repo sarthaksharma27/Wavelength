@@ -10,7 +10,7 @@ function setUser(user) {
     },
     secret,
     {
-      expiresIn: '1h',
+      expiresIn: '7h',
     }
   );
 }

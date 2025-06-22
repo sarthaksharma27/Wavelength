@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const prisma = require('../prisma/client');
+require('dotenv').config({ path: '../.env' });
 
 async function restrictToLoggedinUserOnly(req, res, next) {
   const token = req.cookies.uid;
@@ -8,7 +9,7 @@ async function restrictToLoggedinUserOnly(req, res, next) {
 
   try {
     if (token) {
-      const verified = jwt.verify(token, 'Sarthak$123@$');
+      const verified = jwt.verify(token, process.env.SECRET_KEY);
       req.user = verified;
       return next();
     }

@@ -112,6 +112,12 @@ io.on('connection', socket => {
     socket.to(roomId).emit('ice-candidate', { candidate });
   });
 
+  socket.on('leave-room', (roomId) => {
+    console.log(`User ${socket.id} is leaving room ${roomId}`);
+    socket.leave(roomId);
+    socket.to(roomId).emit('user-left', socket.id);
+  });
+
   socket.on("start-recording-request", (roomId) => {
     const startTime = Date.now() + 5000;
     io.to(roomId).emit("start-recording", { startTime });

@@ -4,7 +4,7 @@ const closeButton = document.getElementById('closeButton');
 
 const micBtn = document.querySelector('.control-button:nth-child(2)');
 const camBtn = document.querySelector('.control-button:nth-child(3)');
-const leaveBtn = document.querySelector('.control-button:nth-child(5)');
+const leaveBtn = document.getElementById('leave-btn');
 
 let localStream = null;
 let micEnabled = true;
@@ -158,6 +158,58 @@ socket.on('user-joined', userId => {
   // No action needed.
 });
 
+socket.on('user-left', userId => {
+  console.log('👤 User left the studio:', userId);
+  
+  // Make the remote video black
+  const remoteVideo = document.getElementById('remote-video');
+  if (remoteVideo) {
+    // Clear the video stream
+    if (remoteVideo.srcObject) {
+      const tracks = remoteVideo.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+      remoteVideo.srcObject = null;
+    }
+    
+    // Add a black overlay with message
+    const videoContainer = remoteVideo.closest('.video-container');
+    if (videoContainer) {
+      // Remove any existing overlay first
+      const existingOverlay = videoContainer.querySelector('.user-left-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
+      
+      // Create new overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'user-left-overlay';
+      overlay.innerHTML = '<div class="user-left-message">User has left the studio</div>';
+      
+      // Ensure the overlay is positioned correctly
+      overlay.style.position = 'absolute';
+      overlay.style.top = '0';
+      overlay.style.left = '0';
+      overlay.style.width = '100%';
+      overlay.style.height = '100%';
+      overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+      overlay.style.display = 'flex';
+      overlay.style.justifyContent = 'center';
+      overlay.style.alignItems = 'center';
+      overlay.style.zIndex = '10';
+      
+      // Add overlay to the video container
+      videoContainer.style.position = 'relative'; // Ensure container is positioned for absolute positioning
+      videoContainer.appendChild(overlay);
+      
+      console.log('Added user left overlay to video container');
+    }
+  }
+  
+  // Show notification
+  showNotification('User has left the studio');
+  console.log('Notification should be displayed');
+});
+
 
 // ==== Button Handlers ====
 
@@ -178,11 +230,28 @@ function toggleCam() {
 }
 
 function leaveCall() {
-  if (!localStream) return;
-  localStream.getTracks().forEach(track => track.stop());
-  localVideo.srcObject = null;
-  localStream = null;
-  alert('You have left the studio.');
+  // Notify other participants that you're leaving
+  socket.emit('leave-room', roomId);
+  
+  // Clean up local media stream
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+    localVideo.srcObject = null;
+    localStream = null;
+  }
+  
+  // Clean up peer connection
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+  
+  console.log('You have left the studio');
+  
+  // Redirect to dashboard after a short delay
+  setTimeout(() => {
+    window.location.href = '/dashboard';
+  }, 500);
 }
 
 const titleInput = document.getElementById('recording-title-input');
@@ -506,6 +575,48 @@ socket.on('job-completed', ({ jobId, roomId_MQ }) => {
   }
 });
 
+
+// ==== Notification Function ====
+
+function showNotification(message) {
+  console.log('Showing notification:', message);
+  
+  // Create notification element if it doesn't exist
+  let notification = document.getElementById('studio-notification');
+  
+  if (!notification) {
+    notification = document.createElement('div');
+    notification.id = 'studio-notification';
+    
+    // Apply styles directly to ensure it works
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    notification.style.color = 'white';
+    notification.style.padding = '12px 20px';
+    notification.style.borderRadius = '8px';
+    notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+    notification.style.zIndex = '1000';
+    notification.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+    
+    document.body.appendChild(notification);
+    console.log('Created notification element');
+  }
+  
+  // Set message and show notification
+  notification.textContent = message;
+  
+  // Force styles to ensure visibility
+  notification.style.opacity = '1';
+  notification.style.transform = 'translateY(0)';
+  
+  // Hide after 5 seconds
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transform = 'translateY(-100px)';
+  }, 5000);
+}
 
 // ==== Init on Load ====
 

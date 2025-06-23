@@ -100,7 +100,7 @@
                         <div class="recording-info">
                         <h3 class="recording-title"><%= recording.title || "Untitled Recording" %></h3>
                         <div class="recording-meta">
-                            <span><%= new Date(recording.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span>
+                            <!-- <span><%= new Date(recording.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span> -->
                             <span><%= new Date(recording.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
                         </div>
                         </div>

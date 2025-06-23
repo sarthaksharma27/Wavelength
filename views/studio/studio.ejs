@@ -35,10 +35,24 @@
         />
         </div>
 
-
-
-        <div id="uploadingStatus" class="stream-button" style="display:none; padding: 10px; color: white; background: #222;">
-            <p id="uploadingText">Uploading to cloud…</p>
+        <div id="uploadingStatus" class="uploading" style="display:none;">
+            <div class="upload-header">
+                <div class="upload-icon"></div>
+                <div>
+                    <div class="upload-title">Uploading Recording</div>
+                    <div class="upload-subtitle">Processing recording data</div>
+                </div>
+            </div>
+            <div class="upload-progress-container">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-details">
+                    <span class="chunk-info" id="chunkInfo"></span>
+                    <span class="percentage" id="percentage"></span>
+                </div>
+                <p id="uploadingText" class="upload-status-text">Uploading to cloud…</p>
+            </div>
         </div>
 
         <div id="recording-section" class="stream-button" style="display: none;">

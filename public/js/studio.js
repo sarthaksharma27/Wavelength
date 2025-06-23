@@ -58,7 +58,6 @@ async function startLocalStream() {
 
 async function createPeerConnection() {
   const config = await getTurnConfig();
-  console.log('📡 Using ICE server config for RTCPeerConnection:', config);
   peerConnection = new RTCPeerConnection(config);
 
   peerConnection.ontrack = (event) => {
@@ -98,7 +97,9 @@ async function createAndSendOffer() {
 }
 
 socket.on('offer', async ({ offer }) => {
-  if (!peerConnection) createPeerConnection();
+  if (!peerConnection) {
+    await createPeerConnection();
+  }
   console.log('📥 Offer received');
   await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
   const answer = await peerConnection.createAnswer();
@@ -106,6 +107,7 @@ socket.on('offer', async ({ offer }) => {
   socket.emit('answer', { roomId, answer });
   console.log('📤 Answer sent');
 });
+
 
 socket.on('answer', async ({ answer }) => {
   if (!peerConnection) return;

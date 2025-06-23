@@ -39,7 +39,7 @@ videoProcessingQueue.process(async (job) => {
     // Publish event to Redis pub/sub
     await redisPub.publish('job-events', JSON.stringify({
       jobId: job.id,
-      roomId: job.data.roomId,
+      roomId_MQ: job.data.roomId, 
     }));
 
   } catch (error) {

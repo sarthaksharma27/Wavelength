@@ -151,11 +151,11 @@ const redisSub = new IORedis({
 redisSub.subscribe('job-events');
 
 redisSub.on('message', (channel, message) => {
-  const { jobId, roomId } = JSON.parse(message);
-  console.log('Received pubsub event:', jobId, roomId);
+  const { jobId, roomId_MQ } = JSON.parse(message);
+  console.log('Received pubsub event:', jobId, roomId_MQ); 
   
   // Emit to frontend via socket.io
-  io.emit('job-completed', { jobId, roomId });
+  io.emit('job-completed', { jobId, roomId_MQ });
 });
 
 const PORT = 4000;

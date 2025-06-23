@@ -481,10 +481,15 @@ socket.on("stop-rec", () => {
 });
 
 socket.on('job-completed', ({ jobId, roomId }) => {
-  const uploadCompleteStatus = document.getElementById("uploadCompleteStatus");
-  uploadCompleteStatus.style.display = "none";
-  const completePopup = document.getElementById('Completepopup');
-  completePopup.style.display = 'block';
+  if (roomId_MQ = roomId) {
+    const uploadCompleteStatus = document.getElementById("uploadCompleteStatus");
+    uploadCompleteStatus.style.display = "none";
+    const completePopup = document.getElementById('Completepopup');
+    completePopup.style.display = 'block';
+  } else {
+    
+  }
+  
 });
 
 

@@ -464,13 +464,11 @@ socket.on("stop-rec", () => {
   isHostRecording = false;
   recordBtnText.textContent = 'Record';
 
-  // Clean up recording
+  // Clean up recording but keep the video connection active
   cleanupRecording();
 
-  // Stop local stream tracks
-  if (localStream) {
-    localStream.getTracks().forEach(track => track.stop());
-  }
+  // Hide recording section
+  recordingSection.classList.add('hidden');
 
   const uploadingStatus = document.getElementById("uploadingStatus");
   const uploadingText = document.getElementById("uploadingText");

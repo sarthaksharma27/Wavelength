@@ -1,5 +1,6 @@
 const localVideo = document.getElementById('local-video');
 const inviteBtn = document.getElementById('invite-btn');
+const closeButton = document.getElementById('closeButton');
 
 const micBtn = document.querySelector('.control-button:nth-child(2)');
 const camBtn = document.querySelector('.control-button:nth-child(3)');
@@ -445,6 +446,14 @@ function cleanupRecording() {
   chunkRecordingStartTime = null;
 }
 
+// Close button event listener
+closeButton.addEventListener('click', () => {
+  const popup = document.getElementById('Completepopup');
+  if (popup) {
+    popup.style.display = 'none';
+  }
+});
+
 socket.on("stop-rec", () => {
   // Only handle if currently recording
   if (!isHostRecording) {
@@ -481,15 +490,22 @@ socket.on("stop-rec", () => {
 });
 
 socket.on('job-completed', ({ jobId, roomId_MQ }) => {
-  if (roomId_MQ = roomId) {
-    const uploadCompleteStatus = document.getElementById("uploadCompleteStatus");
-    uploadCompleteStatus.style.display = "none";
-    const completePopup = document.getElementById('Completepopup');
-    completePopup.style.display = 'block';
-  } else {
-    
-  }
+  console.log(`Received job completion for roomId_MQ: ${roomId_MQ}, current roomId: ${roomId}`);
   
+  
+  if (roomId_MQ === roomId) {
+    console.log(`Job completed for this room: ${roomId}`);
+    const uploadCompleteStatus = document.getElementById("uploadCompleteStatus");
+    if (uploadCompleteStatus) {
+      uploadCompleteStatus.style.display = "none";
+    }
+    const completePopup = document.getElementById('Completepopup');
+    if (completePopup) {
+      completePopup.style.display = 'block';
+    }
+  } else {
+    console.log(`Job completed for different room: ${roomId_MQ}, ignoring`);
+  }
 });
 
 

@@ -2,26 +2,30 @@ require('dotenv').config({ path: '../.env' });
 const videoProcessingQueue = require('../config/queue');
 const { startMerging } = require('../merge');
 const prisma = require("../prisma/client");
+const IORedis = require('ioredis');
 
-// Process jobs from the video processing queue
+// Setup pub connection
+const redisPub = new IORedis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: process.env.REDIS_PORT || 6379,
+  password: process.env.REDIS_PASSWORD || '',
+});
+
 videoProcessingQueue.process(async (job) => {
   console.log(`[Worker] Starting video processing for room: ${job.data.roomId}`);
 
   try {
     const result = await startMerging(job.data.roomId);
 
-    // Update job progress
     job.progress(100);
-
     console.log(`[Worker] Successfully processed video for room: ${job.data.roomId}`);
     console.log("This is the result", result);
 
-    // Save or update recording in DB
     await prisma.recording.upsert({
       where: { roomId: job.data.roomId },
       update: {
         videoUrl: result,
-        userId: job.data.userId,  // optional if you want to update user too
+        userId: job.data.userId,
       },
       create: {
         roomId: job.data.roomId,
@@ -31,23 +35,23 @@ videoProcessingQueue.process(async (job) => {
     });
 
     console.log("videourl added");
-    
 
-    
+    // Publish event to Redis pub/sub
+    await redisPub.publish('job-events', JSON.stringify({
+      jobId: job.id,
+      roomId: job.data.roomId,
+    }));
 
-    // return result;
   } catch (error) {
     console.error(`[Worker] Error processing video for room: ${job.data.roomId}:`, error);
-    throw error; // This will trigger the job retry mechanism
+    throw error;
   }
 });
 
-// Handle completed jobs
 videoProcessingQueue.on('completed', (job, result) => {
   console.log(`[Worker] Job ${job.id} completed for room: ${job.data.roomId}`);
 });
 
-// Handle failed jobs
 videoProcessingQueue.on('failed', (job, error) => {
   console.error(`[Worker] Job ${job.id} failed for room: ${job.data.roomId}:`, error);
 });

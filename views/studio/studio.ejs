@@ -55,25 +55,43 @@
             </div>
         </div>
 
+        <div id="uploadCompleteStatus" style="display:none;">
+            <div class="complete-icon-container">
+                <div class="complete-icon">
+                    <div class="processing-icon"></div>
+                </div>
+            </div>
+            <div class="complete-title">Processing Video</div>
+            <div class="complete-subtitle">Merging video chunks</div>
+            <div class="complete-progress-container">
+                <div class="complete-progress-bar-container">
+                    <div class="complete-progress-bar" id="processingProgressBar"></div>
+                </div>
+            </div>
+            <p class="complete-status-text" id="completeStatusText">Plese do not close or leave tab</p>
+        </div>
+
+        <div id="Completepopup" class="upload-popup" style="display:none;">
+            <div class="complete-icon-container">
+                <div class="complete-icon">
+                    🎉
+                </div>
+            </div>
+            <div class="complete-title">All done! Your video is ready.</div>
+            <div class="complete-subtitle">You can now watch it on your dashboard.</div>
+            <a href="/dashboard" class="dashboard-link">Go to Dashboard</a>
+            <span id="closeButton" class="close-button">×</span>
+        </div>
+
+
         <div id="recording-section" class="stream-button" style="display: none;">
            <p><span class="recording-dot"></span> Recording </p>
         </div>
 
-        <!-- <button class="stream-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                <path d="M2 17l10 5 10-5"/>
-                <path d="M2 12l10 5 10-5"/>
-            </svg>
-            Live stream
-        </button> -->
-
-
-            <% const isLoggedIn = typeof user !== 'undefined' && user; %>
+        <% const isLoggedIn = typeof user !== 'undefined' && user; %>
         <button class="stream-button <%= !isLoggedIn ? 'hidden' : '' %>" id="invite-btn">
             Invite Guest 
         </button>
-
 
     </div>
     

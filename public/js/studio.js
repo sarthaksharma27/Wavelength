@@ -420,7 +420,9 @@ function stopLocalRecording() {
   // Clean up current recording
   cleanupRecording();
 
-  alert("Recording has been stopped!");
+  // alert("Recording has been stopped!");
+  const uploadCompleteStatus = document.getElementById("uploadCompleteStatus");
+  uploadCompleteStatus.style.display = "block";
 }
 
 function cleanupRecording() {
@@ -474,6 +476,14 @@ socket.on("stop-rec", () => {
       console.log("All uploads completed.");
     }
   }, 500);
+   
+});
+
+socket.on('job-completed', ({ jobId, roomId }) => {
+  const uploadCompleteStatus = document.getElementById("uploadCompleteStatus");
+  uploadCompleteStatus.style.display = "none";
+  const completePopup = document.getElementById('Completepopup');
+  completePopup.style.display = 'block';
 });
 
 

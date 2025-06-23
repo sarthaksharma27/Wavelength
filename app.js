@@ -135,11 +135,27 @@ io.on('connection', socket => {
     }, 10000);
   });
 
-
-
+  
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
   });
+});
+
+const IORedis = require('ioredis');
+const redisSub = new IORedis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: process.env.REDIS_PORT || 6379,
+  password: process.env.REDIS_PASSWORD || '',
+});
+
+redisSub.subscribe('job-events');
+
+redisSub.on('message', (channel, message) => {
+  const { jobId, roomId } = JSON.parse(message);
+  console.log('Received pubsub event:', jobId, roomId);
+  
+  // Emit to frontend via socket.io
+  io.emit('job-completed', { jobId, roomId });
 });
 
 const PORT = 4000;

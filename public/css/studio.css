@@ -85,6 +85,10 @@
             cursor: pointer;
             margin-right: 10px;
         }
+
+        .hidden {
+            display: none !important;
+        }
         
         .main-content {
             flex: 1;

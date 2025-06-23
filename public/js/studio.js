@@ -312,7 +312,7 @@ function startLocalRecording() {
   isHostRecording = true;
 
   if (isHostRecording) {
-    recordingSection.style.display = 'block';
+    recordingSection.classList.remove('hidden');
   }
 
   // Reset globals when starting fresh
@@ -420,6 +420,8 @@ function stopLocalRecording() {
   // Clean up current recording
   cleanupRecording();
 
+  recordingSection.classList.add('hidden');
+
   // alert("Recording has been stopped!");
   const uploadCompleteStatus = document.getElementById("uploadCompleteStatus");
   uploadCompleteStatus.style.display = "block";
@@ -452,7 +454,6 @@ socket.on("stop-rec", () => {
   // Stop recording without emitting signal (to prevent loop)
   isHostRecording = false;
   recordBtnText.textContent = 'Record';
-  recordingSection.style.display = 'none';
 
   // Clean up recording
   cleanupRecording();

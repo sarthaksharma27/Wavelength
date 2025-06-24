@@ -136,21 +136,18 @@ async function concatChunks(roomId, userType, outputPath) {
     }
   }
 
-  console.log(`[concatChunks] All chunks downloaded, preparing to concatenate`);
+  console.log(`[concatChunks] All chunks downloaded. Merging chunks into a single file…`);
 
-  // Create concat list
-  const listPath = path.join(tempUserDir, "concat_list.txt");
-  const listFile = chunks.map(chunk => 
-    `file '${path.join(tempUserDir, chunk.filename).replace(/\\/g, "/")}'`
-  ).join("\n");
-  
-  fs.writeFileSync(listPath, listFile);
-  console.log(`[concatChunks] Created concat list with ${chunks.length} entries`);
+  // Merge chunks into a single file
+  const mergedPath = path.join(tempUserDir, "merged.mp4");
+  const mergeCmd = `ffmpeg -y -f concat -safe 0 -i ${path.join(tempUserDir, "chunks.txt")} -c copy -movflags +faststart "${mergedPath}"`;
+  const chunksList = chunks.map(chunk => `file '${path.join(tempUserDir, chunk.filename).replace(/\\/g, "/")}'`).join("\n");
+  fs.writeFileSync(path.join(tempUserDir, "chunks.txt"), chunksList);
+  ffmpeg(mergeCmd);
 
-  // Concatenate chunks
-  console.log(`[concatChunks] Running ffmpeg to concatenate chunks`);
-  const cmd = `ffmpeg -y -f concat -safe 0 -i "${listPath}" -c copy "${outputPath}"`;
-  ffmpeg(cmd);
+  // Re-encode the merged file to a normalized MP4 (CFR, fresh timestamps) to avoid playback glitches
+  const reencodeCmd = `ffmpeg -y -fflags +genpts -i "${mergedPath}" -r 30 -c:v libx264 -preset veryfast -crf 22 -c:a aac -ar 48000 -ac 2 -af "aresample=async=1000" -b:a 128k -movflags +faststart "${outputPath}"`;
+  ffmpeg(reencodeCmd);
 
   // Cleanup temp files
   console.log(`[concatChunks] Cleaning up temporary files`);
@@ -165,10 +162,20 @@ function generateBlackVideo(outputPath, duration = 10, resolution = "640x360") {
   return outputPath;
 }
 
-function mergeSideBySide(roomId, hostFile, guestFile, outputPath) {
-  console.log('[mergeSideBySide] Starting merge process');
-  ffmpeg(`ffmpeg -y -i "${hostFile}" -i "${guestFile}" -filter_complex "[0:v]scale=960:1080[hv];[1:v]scale=960:1080[gv];[hv][gv]hstack=inputs=2[v];[0:a][1:a]amix=inputs=2[a]" -map "[v]" -map "[a]" -c:v libx264 -c:a aac "${outputPath}"`);
-  console.log('[mergeSideBySide] Finished merge process');
+async function mergeSideBySide(roomId, hostFile, guestFile, outputPath) {
+  console.log(`[mergeSideBySide] Starting merge process`);
+  
+  // Use a single filter_complex for all video and audio processing
+  try {
+    const mergeCmd = `ffmpeg -y -i "${hostFile}" -i "${guestFile}" -filter_complex "[0:v]scale=960:540:force_original_aspect_ratio=decrease,setpts=PTS-STARTPTS[hv];[1:v]scale=960:540:force_original_aspect_ratio=decrease,setpts=PTS-STARTPTS[gv];[hv][gv]hstack=inputs=2[v];[0:a]aresample=async=1000,aformat=channel_layouts=stereo[a0];[1:a]aresample=async=1000,aformat=channel_layouts=stereo[a1];[a0][a1]amerge=inputs=2[a]" -map "[v]" -map "[a]" -r 30 -c:v libx264 -preset medium -crf 22 -c:a aac -ar 48000 -ac 2 -b:a 128k "${outputPath}"`;
+    
+    ffmpeg(mergeCmd);
+    console.log('[mergeSideBySide] Finished merge process');
+    return true;
+  } catch (error) {
+    console.error(`[mergeSideBySide] Error during mergeSideBySide: ${error.message}`);
+    return false;
+  }
 }
 
 
@@ -213,8 +220,13 @@ async function startMerging(roomId) {
 
   console.log(`[startMerging] Merging videos side by side...`);
   try {
-  mergeSideBySide(roomId, hostPath, guestInput, finalOutput);
-  console.log(`[startMerging] Videos merged successfully at: ${finalOutput}`);
+    const mergeSuccess = await mergeSideBySide(roomId, hostPath, guestInput, finalOutput);
+    if (mergeSuccess) {
+      console.log(`[startMerging] Videos merged successfully at: ${finalOutput}`);
+    } else {
+      console.error('[startMerging] Failed to merge videos');
+      return;
+    }
   } catch (error) {
     console.error('[startMerging] Error during mergeSideBySide:', error);
     return;

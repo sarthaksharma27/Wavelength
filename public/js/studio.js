@@ -370,8 +370,8 @@ let mediaRecorder;
 let isUploading = false;
 let chunkIndex = 0;
 let recordingTimer = null;
-const CHUNK_DURATION_MS = 5000;
-const RESTART_DELAY_MS = 300;
+const CHUNK_DURATION_MS = 10000;
+const RESTART_DELAY_MS = 200;
 
 let recordingStartTime = null;  // Global start timestamp of whole recording session
 let currentChunkStartTime = 0;  // Relative start time of current chunk

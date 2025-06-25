@@ -382,3 +382,78 @@ body {
         padding: 1rem;
     }
 }
+
+/* Notification Banner Styles */
+.notification-banner {
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    color: white;
+    padding: 1rem 2rem;
+    position: relative;
+    z-index: 99;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 1rem;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.notification-text {
+    flex: 1;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.notification-text strong {
+    font-weight: 600;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.notification-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notification-close svg {
+    display: block;
+}
+
+/* Responsive notification */
+@media (max-width: 768px) {
+    .notification-banner {
+        padding: 0.75rem 1rem;
+    }
+    
+    .notification-content {
+        gap: 0.75rem;
+    }
+    
+    .notification-text {
+        font-size: 0.9rem;
+    }
+    
+    .notification-icon {
+        width: 18px;
+        height: 18px;
+    }
+}

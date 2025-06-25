@@ -267,6 +267,134 @@
             transform: translateY(-1px);
         }
 
+        /* Pro Subscription Notification */
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .notification-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .notification-content {
+            background: var(--dark-card);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .notification-overlay.show .notification-content {
+            transform: translateY(0);
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(144, 102, 204, 0.1), rgba(255, 215, 0, 0.05));
+        }
+
+        .notification-header svg {
+            margin-right: 1rem;
+        }
+
+        .notification-header h3 {
+            flex: 1;
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #9066cc, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .close-notification {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .close-notification:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .notification-body {
+            padding: 1.5rem;
+        }
+
+        .notification-body p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .upgrade-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #9066cc, #7c5dab);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(144, 102, 204, 0.3);
+        }
+
+        .dismiss-btn {
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dismiss-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -294,6 +422,15 @@
             .controls {
                 flex-direction: column;
                 gap: 0.5rem;
+            }
+
+            .notification-content {
+                width: 95%;
+                max-width: none;
+            }
+
+            .notification-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -438,11 +575,54 @@
         </div>
     </div>
 
+    <!-- Pro Subscription Notification -->
+    <div id="pro-notification" class="notification-overlay">
+        <div class="notification-content">
+            <div class="notification-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 8v4M12 16h.01" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h3>Pro Subscription Required</h3>
+                <button class="close-notification">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="notification-body">
+                <p>Downloading recordings requires a Pro subscription. Upgrade your account to access this feature and many more premium benefits.</p>
+                <div class="notification-actions">
+                    <button class="upgrade-btn">Upgrade to Pro</button>
+                    <button class="dismiss-btn">Maybe Later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function downloadVideo(participant) {
             console.log(`Downloading video for: ${participant}`);
-            // You would implement actual video download functionality here
-            // This could trigger different quality downloads based on participant
+            // Show the Pro subscription notification
+            document.getElementById('pro-notification').classList.add('show');
+            
+            // Close notification when clicking the close button
+            document.querySelector('.close-notification').addEventListener('click', function() {
+                document.getElementById('pro-notification').classList.remove('show');
+            });
+            
+            // Close notification when clicking the dismiss button
+            document.querySelector('.dismiss-btn').addEventListener('click', function() {
+                document.getElementById('pro-notification').classList.remove('show');
+            });
+            
+            // Handle upgrade button click (redirect to upgrade page)
+            document.querySelector('.upgrade-btn').addEventListener('click', function() {
+                // Redirect to upgrade page (replace with actual URL)
+                console.log('Redirecting to upgrade page...');
+                // window.location.href = '/upgrade';
+                document.getElementById('pro-notification').classList.remove('show');
+            });
         }
     </script>
 </body>

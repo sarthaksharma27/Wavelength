@@ -1,3 +1,14 @@
+# Wavelength - Riverside clone
+
+Record remote conversation with studio quality!
+
+Guests join via WebRTC, high-quality local recording, chunks upload to cloud in real-time, and also added the feature to merge them using FFmpeg in real time for the final video. Was a fun build!
+
+
+
+Watch Live Preview here - https://x.com/sarthaksharma85/status/1937744926353093063
+
+![Image](https://github.com/user-attachments/assets/34921506-c451-485b-94fc-2e8ff890c674)
 
 ## Run Locally
 
